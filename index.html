@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的网页</title>
+    <title> </title>
     <style>
         @import url('https://fonts.cdnfonts.com/css/general-sans');
 
@@ -30,7 +30,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            z-index: -1;
+            z-index: -2;
         }
 
         .video-background video {
@@ -39,7 +39,7 @@
             object-fit: cover;
         }
 
-        /* 打字机特效 - 右下角 */
+        /* 打字机特效 - 右下角（时间） */
         .typing-container {
             position: fixed;
             bottom: 50px;
@@ -47,20 +47,34 @@
             z-index: 10;
         }
 
-        .typing {
-            color: #dfdff2;
-            font-size: 48px;
+        /* 打字机特效 - 左上角 */
+        .typing-topleft-container {
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            z-index: 10;
+        }
+
+        .typing,
+        .typing-topleft {
+            color: #ffffff;
+            font-size: 56px;
             font-weight: 800;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                         0 0 20px rgba(255, 255, 255, 0.6),
-                         0 0 30px rgba(255, 255, 255, 0.4);
+            text-shadow: 
+                0 0 2px rgba(0, 0, 0, 0.15),
+                0 0 4px rgba(0, 0, 0, 0.1),
+                0 0 6px rgba(0, 0, 0, 0.08),
+                0 0 8px rgba(0, 0, 0, 0.05),
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.6),
+                0 0 30px rgba(255, 255, 255, 0.4);
         }
 
         /* 打字机光标 - 白色细线 */
         .typed-cursor {
-            color: #dfdff2;
-            font-size: 48px;
+            color: #ffffff;
+            font-size: 56px;
             font-weight: 800;
             animation: blink 0.7s infinite;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
@@ -193,7 +207,12 @@
         </video>
     </div>
 
-    <!-- 打字机特效 -->
+    <!-- 打字机特效 - 左上角 -->
+    <div class="typing-topleft-container">
+        <span class="typing-topleft"></span>
+    </div>
+
+    <!-- 打字机特效 - 右下角（时间） -->
     <div class="typing-container">
         <span class="typing"></span>
     </div>
@@ -279,14 +298,60 @@
                 onComplete: () => {
                     // 动画完成后启动打字机
                     startTyped();
+                    startTypedLeft();
                 }
             }, 2);
         });
 
-        // 启动打字机特效
+        // 启动打字机特效 - 显示当前时间（右下角）
         function startTyped() {
-            var typed = new Typed('.typing', {
-                strings: ["Coder", "Developer", "AI Enthusiast"],
+            const typingElement = document.querySelector('.typing');
+            
+            // 格式化时间函数
+            function formatTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return { hours, minutes, seconds, full: `${hours}:${minutes}:${seconds}` };
+            }
+            
+            // 首次显示时间
+            let currentTime = formatTime();
+            typingElement.textContent = currentTime.full;
+            
+            // 每秒更新时间
+            setInterval(() => {
+                const newTime = formatTime();
+                
+                // 比较各部分，只更新变化的部分
+                if (newTime.seconds !== currentTime.seconds) {
+                    // 秒变化 - 只更新秒部分
+                    const secondsPos = 6; // 秒在字符串中的位置
+                    typingElement.textContent = 
+                        typingElement.textContent.substring(0, secondsPos) + newTime.seconds;
+                }
+                
+                if (newTime.minutes !== currentTime.minutes) {
+                    // 分变化 - 更新分和秒部分
+                    const minutesPos = 3; // 分在字符串中的位置
+                    typingElement.textContent = 
+                        typingElement.textContent.substring(0, minutesPos) + newTime.minutes + ':' + newTime.seconds;
+                }
+                
+                if (newTime.hours !== currentTime.hours) {
+                    // 时变化 - 全部更新
+                    typingElement.textContent = newTime.full;
+                }
+                
+                currentTime = newTime;
+            }, 1000);
+        }
+
+        // 启动打字机特效 - 左上角（循环文字）
+        function startTypedLeft() {
+            var typed = new Typed('.typing-topleft', {
+                strings: ["MIKU", "HATSUNE"],
                 loop: true,
                 typeSpeed: 65,
                 backSpeed: 65,
