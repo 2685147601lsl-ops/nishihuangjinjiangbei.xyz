@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的网页</title>
     <style>
+        @import url('https://fonts.cdnfonts.com/css/general-sans');
+
         * {
             margin: 0;
             padding: 0;
@@ -16,154 +18,283 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'General Sans', 'Poppins', sans-serif;
             overflow: hidden;
         }
 
+        /* 视频背景 */
         .video-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            overflow: hidden;
             z-index: -1;
         }
 
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 打字机特效 - 右下角 */
         .typing-container {
-            text-align: center;
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            z-index: 10;
         }
 
         .typing {
-            color: #12d640;
+            color: #dfdff2;
             font-size: 48px;
-            font-weight: 700;
-            border-right: 3px solid #12d640;
-            padding-right: 10px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                         0 0 20px rgba(255, 255, 255, 0.6),
+                         0 0 30px rgba(255, 255, 255, 0.4);
+        }
+
+        /* 打字机光标 - 白色细线 */
+        .typed-cursor {
+            color: #dfdff2;
+            font-size: 48px;
+            font-weight: 800;
             animation: blink 0.7s infinite;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
         @keyframes blink {
             0%, 100% {
-                border-color: #12d640;
+                opacity: 1;
             }
             50% {
-                border-color: transparent;
+                opacity: 0;
             }
         }
 
+        /* GSAP FLIP 开屏动画 */
         .intro-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #010e1b;
+            background: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeOut 0.8s ease-in-out 2.8s forwards;
         }
 
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                visibility: hidden;
-            }
+        .intro-content {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .intro-svg {
-            width: 200px;
-            height: 200px;
-        }
-
-        .outer-circle {
-            fill: none;
-            stroke: #12d640;
-            stroke-width: 3;
-            stroke-dasharray: 283;
-            stroke-dashoffset: 283;
-            animation: drawOuter 1.5s ease-in-out 0.3s forwards;
-        }
-
-        .inner-shape {
-            fill: none;
-            stroke: #12d640;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 120;
-            stroke-dashoffset: 120;
-            animation: drawInner 1s ease-in-out 1.2s forwards;
-        }
-
-        .center-dot {
-            fill: #12d640;
+        .intro-circle {
+            position: absolute;
+            border: 2px solid #dfdff2;
+            border-radius: 50%;
             opacity: 0;
-            transform-origin: center;
-            animation: appearDot 0.5s ease-in-out 2s forwards, pulse 1.5s ease-in-out 2.5s infinite;
+            box-shadow: 0 0 10px rgba(223, 223, 242, 0.3);
         }
 
-        @keyframes drawOuter {
-            to {
-                stroke-dashoffset: 0;
-            }
+        .circle-1 {
+            width: 100px;
+            height: 100px;
+            border-color: rgba(223, 223, 242, 0.4);
+            box-shadow: 0 0 8px rgba(223, 223, 242, 0.2);
         }
 
-        @keyframes drawInner {
-            to {
-                stroke-dashoffset: 0;
-            }
+        .circle-2 {
+            width: 160px;
+            height: 160px;
+            border-color: rgba(223, 223, 242, 0.7);
+            box-shadow: 0 0 12px rgba(223, 223, 242, 0.4);
         }
 
-        @keyframes appearDot {
-            to {
-                opacity: 1;
-            }
+        .circle-3 {
+            width: 220px;
+            height: 220px;
+            border-color: rgba(223, 223, 242, 1);
+            box-shadow: 0 0 15px rgba(223, 223, 242, 0.6);
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.3);
-            }
+        .intro-text {
+            position: absolute;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+            z-index: 10;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                         0 0 30px rgba(255, 255, 255, 0.5),
+                         0 0 40px rgba(255, 255, 255, 0.3);
+        }
+
+        .intro-line {
+            position: absolute;
+            height: 2px;
+            background: #dfdff2;
+            width: 0;
+        }
+
+        .line-horizontal {
+            width: 0;
+            height: 2px;
+        }
+
+        .line-vertical {
+            width: 2px;
+            height: 0;
+        }
+
+        /* 网格背景 */
+        .intro-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(223, 223, 242, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(223, 223, 242, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-    <div class="intro-overlay">
-        <svg class="intro-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle class="outer-circle" cx="50" cy="50" r="45"/>
-            <path class="inner-shape" d="M 35 50 Q 50 35 65 50 Q 50 65 35 50"/>
-            <circle class="center-dot" cx="50" cy="50" r="5"/>
-        </svg>
+    <!-- GSAP FLIP 开屏动画 -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-grid"></div>
+        <div class="intro-content">
+            <div class="intro-circle circle-1"></div>
+            <div class="intro-circle circle-2"></div>
+            <div class="intro-circle circle-3"></div>
+            <div class="intro-text">WELCOME</div>
+        </div>
     </div>
 
-    <video class="video-background" autoplay muted loop playsinline>
-        <source src="9 月 30 日 (1).mp4" type="video/mp4">
-    </video>
+    <!-- 视频背景 -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="background.mp4" type="video/mp4">
+            您的浏览器不支持视频标签。
+        </video>
+    </div>
 
+    <!-- 打字机特效 -->
     <div class="typing-container">
         <span class="typing"></span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
-        var typed = new Typed('.typing', {
-            strings: ["Coder", "Developer", "AI Enthusiast"],
-            loop: true,
-            typeSpeed: 65,
-            backSpeed: 65,
-            showCursor: false,
-            cursorChar: ''
+        // GSAP FLIP 开屏动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline();
+
+            // 1. 网格淡入
+            tl.to('.intro-grid', {
+                opacity: 1,
+                duration: 0.5,
+                ease: 'power2.out'
+            })
+            // 2. 圆圈依次展开（FLIP 效果）
+            .to('.circle-1', {
+                opacity: 1,
+                scale: 1,
+                duration: 0.4,
+                ease: 'power2.out'
+            }, 0.2)
+            .to('.circle-2', {
+                opacity: 1,
+                scale: 1,
+                duration: 0.4,
+                ease: 'power2.out'
+            }, 0.3)
+            .to('.circle-3', {
+                opacity: 1,
+                scale: 1,
+                duration: 0.4,
+                ease: 'power2.out'
+            }, 0.4)
+            // 3. 文字出现
+            .to('.intro-text', {
+                opacity: 1,
+                scale: 1,
+                duration: 0.5,
+                ease: 'back.out(1.7)'
+            }, 0.6)
+            // 4. 圆圈扩散消失
+            .to('.circle-1', {
+                scale: 3,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.inOut'
+            }, 1.5)
+            .to('.circle-2', {
+                scale: 2.5,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.inOut'
+            }, 1.5)
+            .to('.circle-3', {
+                scale: 2,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.inOut'
+            }, 1.5)
+            // 5. 文字向上淡出
+            .to('.intro-text', {
+                y: -100,
+                opacity: 0,
+                duration: 0.6,
+                ease: 'power2.in'
+            }, 1.7)
+            // 6. 网格向上移动并淡出
+            .to('.intro-grid', {
+                y: -100,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power2.inOut'
+            }, 1.7)
+            // 7. 遮罩层边变淡边向上滑出
+            .to('.intro-overlay', {
+                y: '-100%',
+                opacity: 0,
+                duration: 1.2,
+                ease: 'power4.inOut',
+                onComplete: () => {
+                    // 动画完成后启动打字机
+                    startTyped();
+                }
+            }, 2);
         });
+
+        // 启动打字机特效
+        function startTyped() {
+            var typed = new Typed('.typing', {
+                strings: ["Coder", "Developer", "AI Enthusiast"],
+                loop: true,
+                typeSpeed: 65,
+                backSpeed: 65,
+                showCursor: true,
+                cursorChar: '|',
+                typeCssClass: 'typed-text'
+            });
+        }
     </script>
 </body>
 </html>

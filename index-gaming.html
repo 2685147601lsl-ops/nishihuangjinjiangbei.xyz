@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的网页 - 游戏风格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+
+        .gaming-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .floating-geometry {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .geo-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            border-color: rgba(255, 0, 128, 0.3);
+            animation-delay: 0s;
+            transform: rotate(45deg);
+        }
+
+        .geo-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 15%;
+            border-color: rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            animation-delay: -5s;
+        }
+
+        .geo-3 {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            left: 20%;
+            border-color: rgba(255, 255, 0, 0.3);
+            animation-delay: -10s;
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        }
+
+        .geo-4 {
+            width: 80px;
+            height: 80px;
+            top: 30%;
+            right: 30%;
+            border-color: rgba(255, 0, 255, 0.3);
+            animation-delay: -15s;
+            transform: rotate(30deg);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-30px) rotate(90deg);
+            }
+            50% {
+                transform: translateY(0) rotate(180deg);
+            }
+            75% {
+                transform: translateY(30px) rotate(270deg);
+            }
+        }
+
+        .neon-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff0080, #00ffff, transparent);
+            animation: slideLine 8s linear infinite;
+            opacity: 0.5;
+        }
+
+        .line-1 {
+            width: 100%;
+            top: 25%;
+            animation-delay: 0s;
+        }
+
+        .line-2 {
+            width: 100%;
+            top: 75%;
+            animation-delay: -4s;
+        }
+
+        .line-3 {
+            width: 2px;
+            height: 100%;
+            left: 25%;
+            top: 0;
+            background: linear-gradient(180deg, transparent, #ff0080, #00ffff, transparent);
+            animation: slideVertical 8s linear infinite;
+            animation-delay: -2s;
+        }
+
+        .line-4 {
+            width: 2px;
+            height: 100%;
+            right: 25%;
+            top: 0;
+            background: linear-gradient(180deg, transparent, #00ffff, #ff0080, transparent);
+            animation: slideVertical 8s linear infinite;
+            animation-delay: -6s;
+        }
+
+        @keyframes slideLine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes slideVertical {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .glow-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #fff,
+                        0 0 40px #ff0080,
+                        0 0 60px #00ffff;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .glow-particle:nth-child(1) { left: 5%; top: 10%; animation-delay: 0s; }
+        .glow-particle:nth-child(2) { left: 15%; top: 80%; animation-delay: 0.5s; }
+        .glow-particle:nth-child(3) { left: 25%; top: 40%; animation-delay: 1s; }
+        .glow-particle:nth-child(4) { left: 35%; top: 90%; animation-delay: 1.5s; }
+        .glow-particle:nth-child(5) { left: 45%; top: 20%; animation-delay: 2s; }
+        .glow-particle:nth-child(6) { left: 55%; top: 70%; animation-delay: 2.5s; }
+        .glow-particle:nth-child(7) { left: 65%; top: 30%; animation-delay: 0.3s; }
+        .glow-particle:nth-child(8) { left: 75%; top: 60%; animation-delay: 0.8s; }
+        .glow-particle:nth-child(9) { left: 85%; top: 15%; animation-delay: 1.3s; }
+        .glow-particle:nth-child(10) { left: 95%; top: 85%; animation-delay: 1.8s; }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .hexagon-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at center, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+            background-size: 300px 300px;
+            background-position: 0 0, 150px 150px;
+            animation: gridPulse 10s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .typing-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .typing {
+            color: #00ffff;
+            font-size: 48px;
+            font-weight: 700;
+            border-right: 3px solid #00ffff;
+            padding-right: 10px;
+            animation: blink 0.7s infinite;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8),
+                         0 0 20px rgba(255, 0, 128, 0.6),
+                         0 0 30px rgba(0, 255, 255, 0.4);
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                border-color: #00ffff;
+            }
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.8s ease-in-out 2.8s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .intro-svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        .outer-circle {
+            fill: none;
+            stroke: #00ffff;
+            stroke-width: 3;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: drawOuter 1.5s ease-in-out 0.3s forwards;
+        }
+
+        .inner-shape {
+            fill: none;
+            stroke: #ff0080;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 120;
+            stroke-dashoffset: 120;
+            animation: drawInner 1s ease-in-out 1.2s forwards;
+        }
+
+        .center-dot {
+            fill: #ff0080;
+            opacity: 0;
+            transform-origin: center;
+            animation: appearDot 0.5s ease-in-out 2s forwards, pulse 1.5s ease-in-out 2.5s infinite;
+        }
+
+        @keyframes drawOuter {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes drawInner {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes appearDot {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="intro-overlay">
+        <svg class="intro-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle class="outer-circle" cx="50" cy="50" r="45"/>
+            <path class="inner-shape" d="M 35 50 Q 50 35 65 50 Q 50 65 35 50"/>
+            <circle class="center-dot" cx="50" cy="50" r="5"/>
+        </svg>
+    </div>
+
+    <div class="gaming-background">
+        <div class="hexagon-grid"></div>
+        <div class="floating-geometry geo-1"></div>
+        <div class="floating-geometry geo-2"></div>
+        <div class="floating-geometry geo-3"></div>
+        <div class="floating-geometry geo-4"></div>
+        <div class="neon-line line-1"></div>
+        <div class="neon-line line-2"></div>
+        <div class="neon-line line-3"></div>
+        <div class="neon-line line-4"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+        <div class="glow-particle"></div>
+    </div>
+
+    <div class="typing-container">
+        <span class="typing"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script>
+        var typed = new Typed('.typing', {
+            strings: ["Coder", "Developer", "AI Enthusiast"],
+            loop: true,
+            typeSpeed: 65,
+            backSpeed: 65,
+            showCursor: false,
+            cursorChar: ''
+        });
+    </script>
+</body>
+</html>

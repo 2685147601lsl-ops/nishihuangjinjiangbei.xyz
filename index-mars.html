@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的网页 - 火星风格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+
+        .mars-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b, #8b0000);
+            box-shadow: 
+                inset -20px -20px 50px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(255, 107, 107, 0.4),
+                0 0 100px rgba(255, 107, 107, 0.2);
+            animation: planetFloat 30s ease-in-out infinite;
+        }
+
+        .planet-mars {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            right: 15%;
+        }
+
+        .planet-earth {
+            width: 100px;
+            height: 100px;
+            bottom: 30%;
+            left: 10%;
+            background: radial-gradient(circle at 30% 30%, #5dade2, #2e86c1, #1a5276);
+            box-shadow: 
+                inset -15px -15px 40px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(93, 173, 226, 0.4),
+                0 0 80px rgba(93, 173, 226, 0.2);
+            animation-delay: -10s;
+        }
+
+        @keyframes planetFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            50% {
+                transform: translateY(0) translateX(20px);
+            }
+            75% {
+                transform: translateY(20px) translateX(10px);
+            }
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: starTwinkle 4s ease-in-out infinite;
+        }
+
+        .star:nth-child(1) { left: 5%; top: 10%; animation-delay: 0s; }
+        .star:nth-child(2) { left: 10%; top: 20%; animation-delay: 0.5s; }
+        .star:nth-child(3) { left: 15%; top: 30%; animation-delay: 1s; }
+        .star:nth-child(4) { left: 20%; top: 15%; animation-delay: 1.5s; }
+        .star:nth-child(5) { left: 25%; top: 25%; animation-delay: 2s; }
+        .star:nth-child(6) { left: 30%; top: 10%; animation-delay: 2.5s; }
+        .star:nth-child(7) { left: 35%; top: 35%; animation-delay: 0.3s; }
+        .star:nth-child(8) { left: 40%; top: 20%; animation-delay: 0.8s; }
+        .star:nth-child(9) { left: 45%; top: 40%; animation-delay: 1.3s; }
+        .star:nth-child(10) { left: 50%; top: 15%; animation-delay: 1.8s; }
+        .star:nth-child(11) { left: 55%; top: 30%; animation-delay: 2.3s; }
+        .star:nth-child(12) { left: 60%; top: 25%; animation-delay: 2.8s; }
+        .star:nth-child(13) { left: 65%; top: 35%; animation-delay: 0.2s; }
+        .star:nth-child(14) { left: 70%; top: 20%; animation-delay: 0.7s; }
+        .star:nth-child(15) { left: 75%; top: 40%; animation-delay: 1.2s; }
+        .star:nth-child(16) { left: 80%; top: 15%; animation-delay: 1.7s; }
+        .star:nth-child(17) { left: 85%; top: 30%; animation-delay: 2.2s; }
+        .star:nth-child(18) { left: 90%; top: 25%; animation-delay: 2.7s; }
+        .star:nth-child(19) { left: 95%; top: 35%; animation-delay: 0.4s; }
+        .star:nth-child(20) { left: 50%; top: 50%; animation-delay: 0.9s; }
+
+        @keyframes starTwinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        .orbit-ring {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: orbitRotate 60s linear infinite;
+        }
+
+        .orbit-1 {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0s;
+        }
+
+        .orbit-2 {
+            width: 500px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: rgba(255, 107, 107, 0.15);
+            animation-delay: -20s;
+            animation-direction: reverse;
+        }
+
+        .orbit-3 {
+            width: 600px;
+            height: 600px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: rgba(93, 173, 226, 0.1);
+            animation-delay: -40s;
+        }
+
+        @keyframes orbitRotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            animation: shoot 8s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .shooting-star-1 {
+            top: 30%;
+            left: -100px;
+            animation-delay: 0s;
+            transform: rotate(-45deg);
+        }
+
+        .shooting-star-2 {
+            top: 50%;
+            left: -100px;
+            animation-delay: -4s;
+            transform: rotate(-30deg);
+        }
+
+        @keyframes shoot {
+            0%, 100% {
+                opacity: 0;
+                transform: translateX(0) rotate(-45deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            20% {
+                opacity: 0;
+                transform: translateX(1000px) rotate(-45deg);
+            }
+        }
+
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: nebulaPulse 15s ease-in-out infinite;
+        }
+
+        .nebula-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.4), transparent);
+            top: 10%;
+            right: 20%;
+            animation-delay: 0s;
+        }
+
+        .nebula-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(93, 173, 226, 0.3), transparent);
+            bottom: 10%;
+            left: 20%;
+            animation-delay: -7s;
+        }
+
+        @keyframes nebulaPulse {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(1.1);
+            }
+        }
+
+        .typing-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .typing {
+            color: #ff6b6b;
+            font-size: 48px;
+            font-weight: 700;
+            border-right: 3px solid #ff6b6b;
+            padding-right: 10px;
+            animation: blink 0.7s infinite;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.8),
+                         0 0 20px rgba(255, 107, 107, 0.6),
+                         0 0 30px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                border-color: #ff6b6b;
+            }
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.8s ease-in-out 2.8s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .intro-svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        .outer-circle {
+            fill: none;
+            stroke: #ff6b6b;
+            stroke-width: 3;
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: drawOuter 1.5s ease-in-out 0.3s forwards;
+        }
+
+        .inner-shape {
+            fill: none;
+            stroke: #5dade2;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 120;
+            stroke-dashoffset: 120;
+            animation: drawInner 1s ease-in-out 1.2s forwards;
+        }
+
+        .center-dot {
+            fill: #ff6b6b;
+            opacity: 0;
+            transform-origin: center;
+            animation: appearDot 0.5s ease-in-out 2s forwards, pulse 1.5s ease-in-out 2.5s infinite;
+        }
+
+        @keyframes drawOuter {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes drawInner {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes appearDot {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="intro-overlay">
+        <svg class="intro-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle class="outer-circle" cx="50" cy="50" r="45"/>
+            <path class="inner-shape" d="M 35 50 Q 50 35 65 50 Q 50 65 35 50"/>
+            <circle class="center-dot" cx="50" cy="50" r="5"/>
+        </svg>
+    </div>
+
+    <div class="mars-background">
+        <div class="nebula nebula-1"></div>
+        <div class="nebula nebula-2"></div>
+        <div class="planet planet-mars"></div>
+        <div class="planet planet-earth"></div>
+        <div class="orbit-ring orbit-1"></div>
+        <div class="orbit-ring orbit-2"></div>
+        <div class="orbit-ring orbit-3"></div>
+        <div class="shooting-star shooting-star-1"></div>
+        <div class="shooting-star shooting-star-2"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
+
+    <div class="typing-container">
+        <span class="typing"></span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script>
+        var typed = new Typed('.typing', {
+            strings: ["Coder", "Developer", "AI Enthusiast"],
+            loop: true,
+            typeSpeed: 65,
+            backSpeed: 65,
+            showCursor: false,
+            cursorChar: ''
+        });
+    </script>
+</body>
+</html>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
