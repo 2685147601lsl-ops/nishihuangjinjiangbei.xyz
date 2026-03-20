@@ -44,7 +44,7 @@
             position: fixed;
             bottom: 50px;
             right: 50px;
-            z-index: 10;
+            z-index: 4;
         }
 
         /* 打字机特效 - 左上角 */
@@ -52,7 +52,7 @@
             position: fixed;
             top: 50px;
             left: 50px;
-            z-index: 10;
+            z-index: 4;
         }
 
         .typing,
@@ -78,6 +78,276 @@
             font-weight: 800;
             animation: blink 0.7s infinite;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* 雨滴效果 Canvas */
+        .raindrop-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .raindrop-canvas.active {
+            opacity: 1;
+        }
+
+        /* 导航栏 - 左侧 Products 按钮 */
+        .navbar-left {
+            position: fixed;
+            top: 150px;
+            left: 50px;
+            z-index: 1000;
+        }
+
+        .nav-products-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(223, 223, 242, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'General Sans', 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nav-products-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(223, 223, 242, 0.5);
+        }
+
+        .nav-products-btn .btn-text {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            height: 1.2em;
+        }
+
+        .nav-products-btn .btn-text span {
+            display: block;
+            transition: all 0.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+        }
+
+        /* 悬停效果 */
+        .nav-products-btn:hover .btn-text span:first-child {
+            transform: translateY(-160%) skewY(12deg);
+            opacity: 0;
+        }
+
+        .nav-products-btn:hover .btn-text span:last-child {
+            transform: translateY(0) skewY(0);
+            opacity: 1;
+        }
+
+        .nav-products-btn .btn-text span:last-child {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateY(160%) skewY(-12deg);
+            opacity: 0;
+        }
+
+        /* 文字切换动画类 */
+        .nav-products-btn.switching .btn-text span:first-child {
+            animation: textSwitchOut 0.4s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+        }
+
+        .nav-products-btn.switching .btn-text span:last-child {
+            animation: textSwitchIn 0.4s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+        }
+
+        @keyframes textSwitchOut {
+            0% {
+                transform: translateY(0) skewY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100%) skewY(-8deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes textSwitchIn {
+            0% {
+                transform: translateY(100%) skewY(8deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) skewY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-products-btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-products-btn:hover svg {
+            transform: rotate(-45deg);
+        }
+
+        /* 导航栏 - 右上角 */
+        .navbar-right {
+            position: fixed;
+            top: 20px;
+            right: 50px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-link {
+            position: relative;
+            font-family: 'General Sans', 'Poppins', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            text-shadow: 
+                0 0 2px rgba(0, 0, 0, 0.15),
+                0 0 4px rgba(0, 0, 0, 0.1),
+                0 0 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-link:hover {
+            color: #dfdff2;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(223, 223, 242, 0.3);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        /* 音频指示器按钮 */
+        .audio-indicator {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .audio-indicator:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .indicator-line {
+            width: 3px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 2px;
+            transition: all 0.2s ease-in-out;
+            text-shadow: 
+                0 0 2px rgba(0, 0, 0, 0.15),
+                0 0 4px rgba(0, 0, 0, 0.1);
+            animation: none !important;
+            transform-origin: bottom center;
+        }
+
+        /* 每个竖条不同的动画 */
+        .indicator-line:nth-child(1).active {
+            animation: indicator-line-1 0.7s ease infinite !important;
+        }
+
+        .indicator-line:nth-child(2).active {
+            animation: indicator-line-2 0.9s ease infinite !important;
+        }
+
+        .indicator-line:nth-child(3).active {
+            animation: indicator-line-3 0.8s ease infinite !important;
+        }
+
+        .indicator-line:nth-child(4).active {
+            animation: indicator-line-4 1.0s ease infinite !important;
+        }
+
+        /* 不同的动画周期和幅度 */
+        @keyframes indicator-line-1 {
+            0%, 100% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scaleY(1.8);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes indicator-line-2 {
+            0%, 100% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scaleY(1.5);
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes indicator-line-3 {
+            0%, 100% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scaleY(1.9);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes indicator-line-4 {
+            0%, 100% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scaleY(1.6);
+                opacity: 0.4;
+            }
         }
 
         @keyframes blink {
@@ -199,6 +469,40 @@
         </div>
     </div>
 
+    <!-- 导航栏 - 左侧 Products 按钮 -->
+    <div class="navbar-left">
+        <button class="nav-products-btn" id="productsBtn">
+            <div class="btn-text">
+                <span id="btnText1">Products</span>
+                <span id="btnText2">Products</span>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- 导航栏 - 右上角 -->
+    <div class="navbar-right">
+        <div class="nav-links">
+            <a href="#nexus" class="nav-link">Nexus</a>
+            <a href="#vault" class="nav-link">Vault</a>
+            <a href="#prologue" class="nav-link">Prologue</a>
+            <a href="#about" class="nav-link">About</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+        
+        <button class="audio-indicator" id="audioIndicator">
+            <div class="indicator-line"></div>
+            <div class="indicator-line"></div>
+            <div class="indicator-line"></div>
+            <div class="indicator-line"></div>
+        </button>
+    </div>
+
+    <!-- 雨滴效果 Canvas -->
+    <canvas id="raindropCanvas" class="raindrop-canvas"></canvas>
+
     <!-- 视频背景 -->
     <div class="video-background">
         <video autoplay muted loop playsinline>
@@ -219,6 +523,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <!-- Raindrop FX -->
+    <script src="raindrop-fx.js"></script>
+    
     <script>
         // GSAP FLIP 开屏动画
         document.addEventListener('DOMContentLoaded', () => {
@@ -360,6 +668,262 @@
                 typeCssClass: 'typed-text'
             });
         }
+
+        // 雨滴效果全局变量
+        let raindropFx = null;
+        let isRaindropActive = false;
+
+        // 初始化雨滴效果
+        function initRaindrop() {
+            const canvas = document.getElementById('raindropCanvas');
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            try {
+                // 等待视频加载完成后再截图
+                const video = document.querySelector('.video-background video');
+                
+                // 如果视频还没准备好，使用默认设置
+                if (!video.videoWidth) {
+                    console.log('Video not ready, using default settings');
+                    // 延迟初始化
+                    setTimeout(initRaindrop, 500);
+                    return;
+                }
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = video.videoWidth || 1920;
+                tempCanvas.height = video.videoHeight || 1080;
+                const ctx = tempCanvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                const backgroundImage = tempCanvas.toDataURL('image/jpeg');
+                
+                raindropFx = new RaindropFX({
+                    canvas: canvas,
+                    background: backgroundImage,
+                    gravity: 1200,          // 重力：雨滴下落速度（越小越慢）
+                    dropletsPerSeconds: 150, // 雨滴数量：每秒雨滴数（越少越稀疏）
+                    dropletSize: [8, 20],   // 雨滴大小：[最小, 最大]
+                    trailDropDensity: 0.15, // 轨迹密度：雨滴拖尾（越小越淡）
+                    mist: true,
+                    mistBlurStep: 3,        // 雾效模糊：数字越大越模糊 (1-10)
+                    backgroundBlurSteps: 3, // 背景模糊：数字越大越模糊 (1-5)
+                });
+
+                raindropFx.start();
+            } catch (error) {
+                console.error('Raindrop init error:', error);
+            }
+        }
+
+        // 切换雨滴效果
+        function toggleRaindrop() {
+            const canvas = document.getElementById('raindropCanvas');
+            isRaindropActive = !isRaindropActive;
+            
+            if (isRaindropActive) {
+                // 截取当前完整画面（包括视频、打字机等所有元素）
+                captureFullScreen().then(backgroundImage => {
+                    // 更新雨滴背景
+                    if (raindropFx) {
+                        raindropFx.stop();
+                    }
+                    
+                    raindropFx = new RaindropFX({
+                        canvas: canvas,
+                        background: backgroundImage,
+                        gravity: 1200,          // 重力：雨滴下落速度（越小越慢）
+                        dropletsPerSeconds: 150, // 雨滴数量：每秒雨滴数（越少越稀疏）
+                        dropletSize: [8, 20],   // 雨滴大小：[最小, 最大]
+                        trailDropDensity: 0.15, // 轨迹密度：雨滴拖尾（越小越淡）
+                        mist: true,
+                        mistBlurStep: 5,        // 雾效模糊：数字越大越模糊 (1-10)
+                        backgroundBlurSteps: 3, // 背景模糊：数字越大越模糊 (1-5)
+                    });
+                    
+                    raindropFx.start();
+                    canvas.classList.add('active');
+                });
+            } else {
+                canvas.classList.remove('active');
+            }
+        }
+        
+        // 截取完整屏幕（包括所有元素）
+        function captureFullScreen() {
+            return new Promise((resolve) => {
+                // 临时隐藏雨滴 canvas
+                const raindropCanvas = document.getElementById('raindropCanvas');
+                const wasActive = raindropCanvas.classList.contains('active');
+                raindropCanvas.classList.remove('active');
+                
+                // 使用 html2canvas 或类似库，或者使用浏览器原生截图 API
+                // 这里使用简单的 canvas 绘制方法
+                const dpr = window.devicePixelRatio || 1;
+                const captureCanvas = document.createElement('canvas');
+                captureCanvas.width = window.innerWidth * dpr;
+                captureCanvas.height = window.innerHeight * dpr;
+                const ctx = captureCanvas.getContext('2d');
+                ctx.scale(dpr, dpr);
+                
+                // 获取视频元素
+                const video = document.querySelector('.video-background video');
+                
+                // 绘制视频帧
+                if (video && video.videoWidth) {
+                    const videoRatio = video.videoWidth / video.videoHeight;
+                    const screenRatio = window.innerWidth / window.innerHeight;
+                    let drawWidth, drawHeight, drawX, drawY;
+                    
+                    if (screenRatio > videoRatio) {
+                        drawWidth = window.innerWidth;
+                        drawHeight = window.innerWidth / videoRatio;
+                        drawX = 0;
+                        drawY = (window.innerHeight - drawHeight) / 2;
+                    } else {
+                        drawHeight = window.innerHeight;
+                        drawWidth = window.innerHeight * videoRatio;
+                        drawX = (window.innerWidth - drawWidth) / 2;
+                        drawY = 0;
+                    }
+                    
+                    ctx.drawImage(video, drawX, drawY, drawWidth, drawHeight);
+                }
+                
+                // 绘制打字机文字 - 使用与实际 CSS 相同的位置
+                drawTextToCanvas(ctx, '.typing-topleft', 50, 50);
+                drawTextToCanvas(ctx, '.typing', window.innerWidth - 50, window.innerHeight - 50, 'right', 'bottom');
+                
+                // 恢复雨滴 canvas 状态
+                if (wasActive) {
+                    raindropCanvas.classList.add('active');
+                }
+                
+                resolve(captureCanvas.toDataURL('image/jpeg', 0.9));
+            });
+        }
+        
+        // 将文字绘制到 canvas
+        function drawTextToCanvas(ctx, selector, x, y, align = 'left', baseline = 'top') {
+            const element = document.querySelector(selector);
+            if (!element) {
+                console.log('Element not found:', selector);
+                return;
+            }
+            
+            // 获取元素的实际显示文本
+            let text = element.textContent || '';
+            
+            // 对于右下角时间，确保获取当前显示的时间
+            if (selector === '.typing') {
+                // 直接读取当前显示的时间文本
+                text = element.innerText || element.textContent || '';
+                console.log('Time text:', text); // 调试用
+            }
+            
+            // 获取光标元素
+            let cursorChar = '';
+            const parent = element.parentElement;
+            if (parent) {
+                const cursor = parent.querySelector('.typed-cursor');
+                if (cursor && cursor.style.display !== 'none') {
+                    cursorChar = '|';
+                }
+            }
+            
+            // 字体大小与 CSS 一致（56px）
+            const fontSize = 56;
+            
+            ctx.font = `800 ${fontSize}px "General Sans", "Poppins", sans-serif`;
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = align;
+            ctx.textBaseline = baseline;
+            
+            // 添加文字阴影效果（多层阴影模拟原 CSS 效果）
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            ctx.fillText(text + cursorChar, x, y);
+            
+            // 重置阴影
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        // 导航栏交互
+        document.addEventListener('DOMContentLoaded', () => {
+            // 等待视频加载完成后再初始化雨滴效果
+            const video = document.querySelector('.video-background video');
+            if (video.readyState >= 3) {
+                initRaindrop();
+            } else {
+                video.addEventListener('canplay', initRaindrop);
+            }
+
+            const audioIndicator = document.getElementById('audioIndicator');
+            const indicatorLines = audioIndicator.querySelectorAll('.indicator-line');
+            let isAudioPlaying = false;
+
+            // 点击音频指示器切换状态
+            audioIndicator.addEventListener('click', () => {
+                isAudioPlaying = !isAudioPlaying;
+                
+                if (isAudioPlaying) {
+                    indicatorLines.forEach((line, index) => {
+                        line.classList.add('active');
+                        line.style.animationDelay = `${index * 0.1}s`;
+                    });
+                } else {
+                    indicatorLines.forEach(line => {
+                        line.classList.remove('active');
+                    });
+                }
+            });
+
+            // Products 按钮点击效果 - 切换雨滴
+            const productsBtn = document.getElementById('productsBtn');
+            const btnText1 = document.getElementById('btnText1');
+            const btnText2 = document.getElementById('btnText2');
+            
+            productsBtn.addEventListener('click', () => {
+                toggleRaindrop();
+                
+                // 添加切换动画类
+                productsBtn.classList.add('switching');
+                
+                // 等待动画开始后再切换文字
+                setTimeout(() => {
+                    if (isRaindropActive) {
+                        // 冻结界面显示 HOME
+                        btnText1.textContent = 'Home';
+                        btnText2.textContent = 'Home';
+                    } else {
+                        // 主界面显示 PRODUCTS
+                        btnText1.textContent = 'Products';
+                        btnText2.textContent = 'Products';
+                    }
+                }, 200);
+                
+                // 动画结束后移除类
+                setTimeout(() => {
+                    productsBtn.classList.remove('switching');
+                }, 400);
+            });
+
+            // 导航链接点击效果
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.getAttribute('href');
+                    console.log(`Navigating to ${target}`);
+                    // 可以添加平滑滚动或其他交互
+                });
+            });
+        });
     </script>
 </body>
 </html>
