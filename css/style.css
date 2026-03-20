@@ -1,0 +1,762 @@
+@import url('https://fonts.cdnfonts.com/css/general-sans');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    overflow: hidden;
+}
+
+/* 视频背景 */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
+
+.video-background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 打字机特效 - 右下角（时间） */
+.typing-container {
+    position: fixed;
+    bottom: 50px;
+    right: 50px;
+    z-index: 4;
+}
+
+/* 打字机特效 - 左上角 */
+.typing-topleft-container {
+    position: fixed;
+    top: 50px;
+    left: 50px;
+    z-index: 4;
+}
+
+.typing,
+.typing-topleft {
+    color: #ffffff;
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.15),
+        0 0 4px rgba(0, 0, 0, 0.1),
+        0 0 6px rgba(0, 0, 0, 0.08),
+        0 0 8px rgba(0, 0, 0, 0.05),
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+/* 打字机光标 - 白色细线 */
+.typed-cursor {
+    color: #ffffff;
+    font-size: 56px;
+    font-weight: 800;
+    animation: blink 0.7s infinite;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* 雨滴效果 Canvas */
+.raindrop-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.raindrop-canvas.active {
+    opacity: 1;
+}
+
+/* 导航栏 - 左侧 Products 按钮 */
+.navbar-left {
+    position: fixed;
+    top: 150px;
+    left: 50px;
+    z-index: 1000;
+}
+
+.nav-products-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(223, 223, 242, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #000;
+    overflow: hidden;
+    position: relative;
+}
+
+.nav-products-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(223, 223, 242, 0.5);
+}
+
+.nav-products-btn .btn-text {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    height: 1.2em;
+}
+
+.nav-products-btn .btn-text span {
+    display: block;
+    transition: all 0.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+/* 悬停效果 */
+.nav-products-btn:hover .btn-text span:first-child {
+    transform: translateY(-160%) skewY(12deg);
+    opacity: 0;
+}
+
+.nav-products-btn:hover .btn-text span:last-child {
+    transform: translateY(0) skewY(0);
+    opacity: 1;
+}
+
+.nav-products-btn .btn-text span:last-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(160%) skewY(-12deg);
+    opacity: 0;
+}
+
+/* 文字切换动画类 */
+.nav-products-btn.switching .btn-text span:first-child {
+    animation: textSwitchOut 0.4s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+}
+
+.nav-products-btn.switching .btn-text span:last-child {
+    animation: textSwitchIn 0.4s cubic-bezier(0.65, 0.05, 0.36, 1) forwards;
+}
+
+@keyframes textSwitchOut {
+    0% {
+        transform: translateY(0) skewY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100%) skewY(-8deg);
+        opacity: 0;
+    }
+}
+
+@keyframes textSwitchIn {
+    0% {
+        transform: translateY(100%) skewY(8deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0) skewY(0);
+        opacity: 1;
+    }
+}
+
+.nav-products-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.nav-products-btn:hover svg {
+    transform: rotate(-45deg);
+}
+
+/* 导航栏 - 右上角 */
+.navbar-right {
+    position: fixed;
+    top: 20px;
+    right: 50px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-link {
+    position: relative;
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    text-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.15),
+        0 0 4px rgba(0, 0, 0, 0.1),
+        0 0 6px rgba(0, 0, 0, 0.08);
+}
+
+.nav-link:hover {
+    color: #dfdff2;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(223, 223, 242, 0.3);
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+.nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* 音频指示器按钮 */
+.audio-indicator {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.audio-indicator:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.indicator-line {
+    width: 3px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.2s ease-in-out;
+    text-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.15),
+        0 0 4px rgba(0, 0, 0, 0.1);
+    animation: none !important;
+    transform-origin: bottom center;
+}
+
+/* 每个竖条不同的动画 */
+.indicator-line:nth-child(1).active {
+    animation: indicator-line-1 0.7s ease infinite !important;
+}
+
+.indicator-line:nth-child(2).active {
+    animation: indicator-line-2 0.9s ease infinite !important;
+}
+
+.indicator-line:nth-child(3).active {
+    animation: indicator-line-3 0.8s ease infinite !important;
+}
+
+.indicator-line:nth-child(4).active {
+    animation: indicator-line-4 1.0s ease infinite !important;
+}
+
+/* 不同的动画周期和幅度 */
+@keyframes indicator-line-1 {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scaleY(1.8);
+        opacity: 0.7;
+    }
+}
+
+@keyframes indicator-line-2 {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scaleY(1.5);
+        opacity: 0.5;
+    }
+}
+
+@keyframes indicator-line-3 {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scaleY(1.9);
+        opacity: 0.6;
+    }
+}
+
+@keyframes indicator-line-4 {
+    0%, 100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scaleY(1.6);
+        opacity: 0.4;
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   预加载动画
+   ======================================== */
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.loader-line {
+    width: 2px;
+    height: 30px;
+    background: #dfdff2;
+    animation: loaderPulse 1.5s infinite ease-in-out;
+    box-shadow: 0 0 10px rgba(223, 223, 242, 0.5);
+}
+
+.loader-text {
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+    animation: textPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes loaderPulse {
+    0%, 100% { transform: scaleY(0.3); opacity: 0.3; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes textPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* GSAP FLIP 开屏动画 */
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.intro-content {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.intro-circle {
+    position: absolute;
+    border: 2px solid #dfdff2;
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 10px rgba(223, 223, 242, 0.3);
+}
+
+.circle-1 {
+    width: 100px;
+    height: 100px;
+    border-color: rgba(223, 223, 242, 0.4);
+    box-shadow: 0 0 8px rgba(223, 223, 242, 0.2);
+}
+
+.circle-2 {
+    width: 160px;
+    height: 160px;
+    border-color: rgba(223, 223, 242, 0.7);
+    box-shadow: 0 0 12px rgba(223, 223, 242, 0.4);
+}
+
+.circle-3 {
+    width: 220px;
+    height: 220px;
+    border-color: rgba(223, 223, 242, 1);
+    box-shadow: 0 0 15px rgba(223, 223, 242, 0.6);
+}
+
+.intro-text {
+    position: absolute;
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 8px;
+    opacity: 0;
+    transform: scale(0.8);
+    z-index: 10;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                 0 0 30px rgba(255, 255, 255, 0.5),
+                 0 0 40px rgba(255, 255, 255, 0.3);
+}
+
+.intro-line {
+    position: absolute;
+    height: 2px;
+    background: #dfdff2;
+    width: 0;
+}
+
+.line-horizontal {
+    width: 0;
+    height: 2px;
+}
+
+.line-vertical {
+    width: 2px;
+    height: 0;
+}
+
+/* 网格背景 */
+.intro-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(223, 223, 242, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(223, 223, 242, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0;
+}
+
+/* ========================================
+   Products 面板
+   ======================================== */
+.products-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.products-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.products-container {
+    text-align: center;
+    max-width: 900px;
+    width: 90%;
+}
+
+.products-title {
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 8px;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.6),
+        0 0 20px rgba(255, 255, 255, 0.3);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+
+.products-panel.active .products-title {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.products-subtitle {
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+
+.products-panel.active .products-subtitle {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.products-grid {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* 卡片基础样式 */
+.product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 28px 28px;
+    width: 260px;
+    background: rgba(20, 20, 20, 0.4); /* 稍微加深背景，代替模糊效果 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    text-decoration: none;
+    color: #ffffff;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.4s ease, 
+                box-shadow 0.4s ease, 
+                opacity 0.6s ease;
+    transform: translateY(30px);
+    opacity: 0;
+    will-change: transform;
+}
+
+.products-panel.active .product-card {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.products-panel.active .product-card:nth-child(1) {
+    transition-delay: 0.3s;
+}
+.products-panel.active .product-card:nth-child(2) {
+    transition-delay: 0.4s;
+}
+.products-panel.active .product-card:nth-child(3) {
+    transition-delay: 0.5s;
+}
+
+.product-card:hover {
+    transform: translateY(-8px) !important;
+    transition-delay: 0s !important; /* 关键：确保悬停时立即响应，不使用入场动画的延迟 */
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(223, 223, 242, 0.1);
+}
+
+/* 卡片光晕背景 */
+.product-card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* Grok2API - 蓝紫色调 */
+#cardGrok .product-card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(120, 130, 255, 0.15), transparent 50%);
+}
+#cardGrok:hover {
+    border-color: rgba(120, 130, 255, 0.3);
+}
+#cardGrok:hover .product-card-glow {
+    opacity: 1;
+}
+#cardGrok .product-icon {
+    color: #8b8eff;
+}
+
+/* GCLI2API - 青绿色调 */
+#cardGcli .product-card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(80, 200, 200, 0.15), transparent 50%);
+}
+#cardGcli:hover {
+    border-color: rgba(80, 200, 200, 0.3);
+}
+#cardGcli:hover .product-card-glow {
+    opacity: 1;
+}
+#cardGcli .product-icon {
+    color: #5ecfcf;
+}
+
+/* CLI Proxy API - 淡紫粉色调 */
+#cardProxy .product-card-glow {
+    background: radial-gradient(circle at 50% 50%, rgba(200, 130, 255, 0.15), transparent 50%);
+}
+#cardProxy:hover {
+    border-color: rgba(200, 130, 255, 0.3);
+}
+#cardProxy:hover .product-card-glow {
+    opacity: 1;
+}
+#cardProxy .product-icon {
+    color: #c88aff;
+}
+
+/* 图标区域 */
+.product-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-card:hover .product-icon {
+    transform: scale(1.1);
+}
+
+.product-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 产品信息 */
+.product-info {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.product-name {
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: #ffffff;
+}
+
+.product-desc {
+    font-family: 'General Sans', 'Poppins', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+}
+
+/* 箭头指示器 */
+.product-arrow {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.product-arrow svg {
+    width: 14px;
+    height: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .product-arrow {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.product-card:hover .product-arrow svg {
+    color: #ffffff;
+    transform: translate(2px, -2px);
+}
+
+/* 响应式 */
+@media (max-width: 860px) {
+    .products-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    .product-card {
+        width: 280px;
+    }
+}
