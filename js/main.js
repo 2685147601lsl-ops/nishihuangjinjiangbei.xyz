@@ -20,7 +20,7 @@ function startIntroAnimation() {
 
     // 初始设置
     gsap.set('.circle-1, .circle-2, .circle-3', { scale: 0.1, opacity: 0 });
-    gsap.set('.intro-text', { scale: 0.8, letterSpacing: '15px', y: 0, opacity: 0 });
+    gsap.set('.intro-text', { scale: 0.8, y: 0, opacity: 0 }); // 移除了抖动元凶 letterSpacing
     gsap.set('.intro-overlay', { scale: 1 });
     // 打字机容器初始不可见且有位移
     gsap.set('.typing-topleft-container', { opacity: 0, y: -40 });
@@ -49,11 +49,10 @@ function startIntroAnimation() {
     .to('.circle-2', { rotation: -60, duration: 3, ease: 'none' }, 'start+=0.2')
     .to('.circle-3', { rotation: 45, duration: 3, ease: 'none' }, 'start+=0.2')
 
-    // 4. WELCOME 文字平滑浮现（0.5秒开始，时长0.8秒，于1.3秒结束）
+    // 4. WELCOME 文字平滑浮现（纯缩放，不用 letterSpacing 防抖动）
     .to('.intro-text', {
         opacity: 1,
         scale: 1,
-        letterSpacing: '8px',
         duration: 0.8,
         ease: 'power2.out'
     }, 'start+=0.5')
@@ -67,11 +66,10 @@ function startIntroAnimation() {
     .to('.circle-2', { scale: 3, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'outro+=0.05')
     .to('.circle-1', { scale: 3.5, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'outro+=0.1')
 
-    // 7. 文字与网格同步消散
+    // 7. 文字与网格同步消散（纯缩放即可产生拉伸感，防止抖动）
     .to('.intro-text', {
         opacity: 0,
         scale: 1.2,
-        letterSpacing: '12px',
         duration: 0.6,
         ease: 'power3.in'
     }, 'outro+=0.1')
@@ -188,6 +186,9 @@ let isRaindropActive = false;
 
 // 初始化雨滴效果
 function initRaindrop() {
+    // 已经初始化过则不再重复执行，防止背景视频 loop 时触发 canplay 事件导致反复重启
+    if (raindropFx) return;
+
     const canvas = document.getElementById('raindropCanvas');
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -221,6 +222,7 @@ function initRaindrop() {
             trailDropDensity: 0.15, // 轨迹密度：雨滴拖尾（越小越淡）
             mist: true,
             mistBlurStep: 3,        // 雾效模糊：数字越大越模糊 (1-10)
+            mistTime: 99999,        // 防止内部默认 10s 的定时擦除重置效果
             backgroundBlurSteps: 3, // 背景模糊：数字越大越模糊 (1-5)
         });
 
@@ -252,6 +254,7 @@ function toggleRaindrop() {
                 trailDropDensity: 0.1,   // 稍微降低一点拖尾效果
                 mist: true,
                 mistBlurStep: 5,        // 雾效模糊：数字越大越模糊 (1-10)
+                mistTime: 99999,        // 防止内部默认 10s 的定时擦除重置效果
                 backgroundBlurSteps: 3, // 背景模糊：数字越大越模糊 (1-5)
             });
             
@@ -260,12 +263,30 @@ function toggleRaindrop() {
             // 显示产品面板
             const productsPanel = document.getElementById('productsPanel');
             productsPanel.classList.add('active');
+            
+            // 使用 GSAP 平滑依次切入卡片
+            gsap.fromTo('.product-card', 
+                { y: 30, opacity: 0 }, 
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    duration: 0.6, 
+                    stagger: 0.1, 
+                    ease: 'power3.out', 
+                    delay: 0.2,
+                    // 关键：入场动画结束后清除 transform 属性，把 transform 控制权还给 CSS :hover
+                    clearProps: 'transform' 
+                }
+            );
         });
     } else {
         canvas.classList.remove('active');
         // 隐藏产品面板
         const productsPanel = document.getElementById('productsPanel');
         productsPanel.classList.remove('active');
+        // 清除尚未完成的入场动画，并重置所有的变换内联样式
+        gsap.killTweensOf('.product-card');
+        gsap.set('.product-card', { clearProps: 'all' });
     }
 }
 

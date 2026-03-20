@@ -594,29 +594,18 @@ body {
                 border-color 0.4s ease, 
                 box-shadow 0.4s ease, 
                 opacity 0.6s ease;
-    transform: translateY(30px);
+    /* 初始透明度设为 0，由 GSAP 渐显。transform 保持 0，方便 CSS :hover 准确识别基准位 */
+    transform: translateY(0);
     opacity: 0;
     will-change: transform;
 }
 
-.products-panel.active .product-card {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.products-panel.active .product-card:nth-child(1) {
-    transition-delay: 0.3s;
-}
-.products-panel.active .product-card:nth-child(2) {
-    transition-delay: 0.4s;
-}
-.products-panel.active .product-card:nth-child(3) {
-    transition-delay: 0.5s;
-}
+/* 取消这里写死的 CSS 依次出场延迟，改为通过 GSAP stagger 更加优雅地控制。
+   这也就解决了 transition-delay 导致的 hover 恢复延迟的 bug */
+/* 状态标记由外层处理，这里不需要多余的空规则块 */
 
 .product-card:hover {
-    transform: translateY(-8px) !important;
-    transition-delay: 0s !important; /* 关键：确保悬停时立即响应，不使用入场动画的延迟 */
+    transform: translateY(-8px);
     border-color: rgba(255, 255, 255, 0.25);
     box-shadow: 
         0 20px 60px rgba(0, 0, 0, 0.3),
