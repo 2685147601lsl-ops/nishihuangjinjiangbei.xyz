@@ -413,9 +413,20 @@ document.addEventListener('DOMContentLoaded', () => {
         bgMusic.volume = 0.5;
     }
 
+    // 调试辅助：检查音频是否加载成功
+    if (bgMusic) {
+        bgMusic.addEventListener('error', (e) => {
+            console.error('Audio element error:', bgMusic.error);
+        });
+        bgMusic.addEventListener('loadstart', () => console.log('Audio load start'));
+        bgMusic.addEventListener('canplaythrough', () => console.log('Audio can play through'));
+    }
+
     // 点击音频指示器切换状态（播放/暂停音乐）
     audioIndicator.addEventListener('click', () => {
         isAudioPlaying = !isAudioPlaying;
+        
+        console.log('Audio button clicked, isPlaying:', isAudioPlaying);
         
         if (isAudioPlaying) {
             indicatorLines.forEach((line, index) => {
@@ -423,7 +434,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 line.style.animationDelay = `${index * 0.1}s`;
             });
             if (bgMusic) {
-                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                const playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Playback started successfully');
+                    }).catch(error => {
+                        console.error('Playback failed:', error);
+                        // 如果因为浏览器策略拦截，则重置按钮状态
+                        isAudioPlaying = false;
+                        indicatorLines.forEach(line => line.classList.remove('active'));
+                    });
+                }
             }
         } else {
             indicatorLines.forEach(line => {
@@ -431,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (bgMusic) {
                 bgMusic.pause();
+                console.log('Playback paused');
             }
         }
     });
