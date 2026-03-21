@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triple Orbit Spinner</title>
+<style>
+  /* 基础重置与黑底居中（适配你的纯黑背景要求） */
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* 核心容器：负责整体的 360 度持续旋转 */
+  .spinner {
+    position: relative;
+    width: 80px;  /* 整体动画的范围大小 */
+    height: 80px;
+    animation: spin 2s linear infinite; /* 2s 转一圈，匀速，无限循环 */
+  }
+
+  /* 轨道外壳：用于将三个点固定在等边三角形的三个顶点上 */
+  .dot-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  .dot-1 { transform: rotate(0deg); }
+  .dot-2 { transform: rotate(120deg); }
+  .dot-3 { transform: rotate(240deg); }
+
+  /* 实体圆点：负责缩放（呼吸）和透明度变化 */
+  .dot {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 18px;  /* 圆点的大小 */
+    height: 18px;
+    margin-left: -9px; /* 保证圆点完美居中对齐 */
+    background-color: #00FFCC; /* 极客感青色，你可以随意替换 */
+    border-radius: 50%;
+    /* 1.5s 呼吸一次，带有平滑的缓动效果 */
+    animation: pulse 1.5s ease-in-out infinite; 
+  }
+
+  /* 利用动画延迟（delay），打时间差，制造出连贯的“波浪”视觉 */
+  .dot-1 .dot { animation-delay: 0s; }
+  .dot-2 .dot { animation-delay: 0.5s; }
+  .dot-3 .dot { animation-delay: 1s; }
+
+  /* 旋转关键帧 */
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  /* 呼吸缩放关键帧 */
+  @keyframes pulse {
+    0%, 100% { 
+      transform: scale(0.4); /* 缩到最小 */
+      opacity: 0.3;          /* 变暗 */
+    }
+    50% { 
+      transform: scale(1);   /* 恢复正常大小 */
+      opacity: 1;            /* 最亮 */
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="spinner">
+    <div class="dot-wrapper dot-1"><div class="dot"></div></div>
+    <div class="dot-wrapper dot-2"><div class="dot"></div></div>
+    <div class="dot-wrapper dot-3"><div class="dot"></div></div>
+  </div>
+
+</body>
+</html>
