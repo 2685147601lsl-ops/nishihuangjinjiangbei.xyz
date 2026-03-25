@@ -1,4 +1,4 @@
-// GSAP 开屏动画与预加载
+// GSAP 开屏动画与静默预加载
 window.addEventListener('load', () => {
     // 隐藏预加载器
     const preloader = document.getElementById('preloader');
@@ -11,8 +11,32 @@ window.addEventListener('load', () => {
             if (preloader) preloader.style.display = 'none';
             // 预加载器隐藏后，开始开屏动画
             startIntroAnimation();
+            // 在后台静默预加载所有交互帧，根除图片更换时的肉眼延迟
+            preloadCriticalAssets();
         }
     });
+
+    function preloadCriticalAssets() {
+        const assetsToPreload = [
+            'assets/image/miku_blink_closed_full.png',
+            'assets/image/miku_blink_closed_half.png',
+            'assets/image/miku_blink_open_full.png',
+            'assets/image/miku_blink_open_half.png',
+            'assets/image/miku_cry_1.png',
+            'assets/image/miku_cry_2.png',
+            'assets/image/miku_cry_3.png',
+            'assets/image/miku_walk_1.png',
+            'assets/image/miku_walk_2.png'
+        ];
+        // 强制浏览器建立图片缓存
+        assetsToPreload.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        // 对第二个沉浸式大视频使用 fetch 主动装载入磁盘缓存区
+        fetch('assets/video/background2.mp4').catch(err => console.log('Video preload muted:', err));
+    }
 });
 
 function startIntroAnimation() {
@@ -161,7 +185,6 @@ function initMikuLogic() {
     };
 
     let isDragging = false;
-    let isWalking = false;
     let isEvolving = false; // 新增进化状态标记
     let mouthState = 'OPEN';
     let blinkCount = 0;
@@ -170,7 +193,7 @@ function initMikuLogic() {
 
     let blinkTimer;
     const triggerBlink = () => {
-        if (isDragging || isWalking || isEvolving) return;
+        if (isDragging || isEvolving) return;
         const isClosed = (mouthState === 'CLOSED');
         const halfBlinkAsset = isClosed ? assets.blinkClosedHalf : assets.blinkHalf;
         const fullBlinkAsset = isClosed ? assets.blinkClosedFull : assets.blinkFull;
@@ -191,48 +214,15 @@ function initMikuLogic() {
     const startBlinking = () => {
         const loop = () => {
             if (isEvolving) return; // 进化后永久停止
-            if (!isDragging && !isWalking) triggerBlink();
+            if (!isDragging) triggerBlink();
             blinkTimer = setTimeout(loop, 5000); 
         };
         blinkTimer = setTimeout(loop, 5000);
     };
     startBlinking();
 
-    const walkToNewPoint = () => {
-        if (isDragging || isWalking || Math.random() > 0.3) return;
-        isWalking = true;
-        const rect = mikuMascot.getBoundingClientRect();
-        const walkDistance = (Math.random() - 0.5) * 150;
-        const targetX = rect.left + walkDistance;
-        if (targetX < 10 || targetX > window.innerWidth - 130) { isWalking = false; return; }
-
-        if (walkDistance > 0) mikuImg.classList.add('miku-flip');
-        else mikuImg.classList.remove('miku-flip');
-
-        let stepCount = 0;
-        const walkInterval = setInterval(() => {
-            if (!isWalking) return clearInterval(walkInterval);
-            mikuImg.src = (stepCount % 2 === 0) ? assets.walk1 : assets.walk2;
-            stepCount++;
-        }, 200);
-
-        gsap.to(mikuMascot, {
-            left: targetX,
-            duration: Math.abs(walkDistance) / 40,
-            ease: 'none',
-            onComplete: () => {
-                isWalking = false;
-                clearInterval(walkInterval);
-                mikuImg.classList.remove('miku-flip');
-                mikuImg.src = (mouthState === 'CLOSED') ? assets.idleClosed : assets.idleOpen;
-            }
-        });
-    };
-    setInterval(walkToNewPoint, 15000);
-
     mikuMascot.addEventListener('pointerdown', (e) => {
         isDragging = true;
-        isWalking = false;
         mouthState = 'OPEN';
         blinkCount = 0;
         mikuImg.src = assets.cry1;
@@ -984,6 +974,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 数据加载后再淡入
             bgVideo.oncanplay = () => {
+                bgVideo.oncanplay = null; // 极度关键：防止视频 loop 时无限反复触发进场动画
+                
                 bgVideo.classList.remove('video-fade-out');
                 
                 // 2. UI 重新流畅滑入
@@ -1002,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }, 1000); 
     };
+
 
 
 
