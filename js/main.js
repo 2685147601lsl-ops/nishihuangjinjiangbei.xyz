@@ -122,8 +122,8 @@ function startIntroAnimation() {
         ease: 'power3.out',
         onStart: startTyped
     }, 'outro+=1.1')
-    // 10. 看板娘最后蹦出来
-    .to('.miku-mascot-container', {
+    // 10. 物品与看板娘最后蹦出来
+    tl.to('.miku-mascot-container, .miku-item-container', {
         opacity: 1,
         y: 0,
         duration: 1.5,
@@ -132,28 +132,37 @@ function startIntroAnimation() {
     }, 'outro+=1.2');
 }
 
+
 // 将 Miku 逻辑封装成初始化函数
 function initMikuLogic() {
     const mikuMascot = document.getElementById('mikuMascot');
     const mikuImg = document.getElementById('mikuImg');
     if (!mikuMascot || !mikuImg) return;
 
+    // 优先使用低分辨素材（如果是网络环境差或大文件未加载）
+    // 逻辑：先设置 src 为 lowres 版本，等高分辨版本加载完再替换
+    const getAssetPath = (name) => {
+        // 模拟逻辑：如果有本地压缩素材文件夹，先尝试加载
+        return `assets/image/${name}`; // 暂时保持原路径，后续可加 .low 加密/压缩逻辑
+    };
+
     const assets = {
-        idleOpen: 'assets/image/miku_idle_open.png',
-        idleClosed: 'assets/image/miku_idle_closed.png',
-        blinkHalf: 'assets/image/miku_blink_open_half.png',
-        blinkFull: 'assets/image/miku_blink_open_full.png',
-        blinkClosedHalf: 'assets/image/miku_blink_closed_half.png',
-        blinkClosedFull: 'assets/image/miku_blink_closed_full.png',
-        cry1: 'assets/image/miku_cry_1.png',
-        cry2: 'assets/image/miku_cry_2.png',
-        cry3: 'assets/image/miku_cry_3.png',
-        walk1: 'assets/image/miku_walk_1.png',
-        walk2: 'assets/image/miku_walk_2.png'
+        idleOpen: getAssetPath('miku_idle_open.png'),
+        idleClosed: getAssetPath('miku_idle_closed.png'),
+        blinkHalf: getAssetPath('miku_blink_open_half.png'),
+        blinkFull: getAssetPath('miku_blink_open_full.png'),
+        blinkClosedHalf: getAssetPath('miku_blink_closed_half.png'),
+        blinkClosedFull: getAssetPath('miku_blink_closed_full.png'),
+        cry1: getAssetPath('miku_cry_1.png'),
+        cry2: getAssetPath('miku_cry_2.png'),
+        cry3: getAssetPath('miku_cry_3.png'),
+        walk1: getAssetPath('miku_walk_1.png'),
+        walk2: getAssetPath('miku_walk_2.png')
     };
 
     let isDragging = false;
     let isWalking = false;
+    let isEvolving = false; // 新增进化状态标记
     let mouthState = 'OPEN';
     let blinkCount = 0;
     let startX, startY, initialLeft, initialTop;
@@ -161,7 +170,7 @@ function initMikuLogic() {
 
     let blinkTimer;
     const triggerBlink = () => {
-        if (isDragging || isWalking) return;
+        if (isDragging || isWalking || isEvolving) return;
         const isClosed = (mouthState === 'CLOSED');
         const halfBlinkAsset = isClosed ? assets.blinkClosedHalf : assets.blinkHalf;
         const fullBlinkAsset = isClosed ? assets.blinkClosedFull : assets.blinkFull;
@@ -181,8 +190,9 @@ function initMikuLogic() {
 
     const startBlinking = () => {
         const loop = () => {
+            if (isEvolving) return; // 进化后永久停止
             if (!isDragging && !isWalking) triggerBlink();
-            blinkTimer = setTimeout(loop, 5000); // 固定 5s 间隔
+            blinkTimer = setTimeout(loop, 5000); 
         };
         blinkTimer = setTimeout(loop, 5000);
     };
@@ -258,7 +268,272 @@ function initMikuLogic() {
         setTimeout(triggerBlink, 300);
     });
 
+    // --- 物品交互 (Leek) ---
+    const mikuLeek = document.getElementById('mikuLeek');
+    if (mikuLeek) {
+        let isLeekDragging = false;
+        let lStartX, lStartY, lInitialLeft, lInitialTop;
+
+        mikuLeek.addEventListener('pointerdown', (e) => {
+            isLeekDragging = true;
+            mikuLeek.style.animation = 'none';
+            lStartX = e.clientX;
+            lStartY = e.clientY;
+            const rect = mikuLeek.getBoundingClientRect();
+            lInitialLeft = rect.left;
+            lInitialTop = rect.top;
+            mikuLeek.setPointerCapture(e.pointerId);
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isLeekDragging) return;
+            const dx = e.clientX - lStartX;
+            const dy = e.clientY - lStartY;
+            const newLeft = lInitialLeft + dx;
+            const newTop = lInitialTop + dy;
+            mikuLeek.style.left = `${newLeft}px`;
+            mikuLeek.style.top = `${newTop}px`;
+            mikuLeek.style.bottom = 'auto';
+
+            // 碰撞检测
+            if (checkCollision(mikuLeek, mikuMascot)) {
+                triggerMikuEvolution();
+            }
+        });
+
+        window.addEventListener('pointerup', () => {
+            if (!isLeekDragging) return;
+            isLeekDragging = false;
+            mikuLeek.style.animation = 'leek-float 3s ease-in-out infinite';
+        });
+    }
+
+    // 碰撞检测逻辑
+    function checkCollision(el1, el2) {
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+        return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+    }
+
+    // Miku 进化逻辑 (吃掉大葱)
+    function triggerMikuEvolution() {
+        if (mikuLeek.style.display === 'none' || isEvolving) return;
+        
+        isEvolving = true;
+        clearTimeout(blinkTimer); // 强制停止眨眼定时器
+
+        // 1. 物品静止并消失
+        mikuLeek.style.display = 'none';
+
+        // 2. Miku 变身 (切换图)
+        mikuImg.src = 'assets/image/miku_leek.png';
+        
+        // 3. Miku 直接淡出 (消失)
+        gsap.to(mikuMascot, {
+            opacity: 0,
+            y: 40,
+            duration: 1.5,
+            ease: 'power2.inOut',
+            onComplete: () => {
+                mikuMascot.style.visibility = 'hidden';
+                mikuMascot.style.display = 'none'; // 彻底移除占位
+            }
+        });
+
+        // 4. 背景视频切换
+        if (window.switchBackground) {
+            window.switchBackground();
+        }
+    }
+
+    // 提供给外部的重置函数（切回 Miku 宇宙时调用）
+    window.resetMikuState = function() {
+        if (!mikuMascot || !mikuLeek) return;
+        isEvolving = false;
+        mikuImg.src = assets.idleOpen;
+        
+        // 恢复初始静靠的 UI 位置
+        mikuMascot.style.visibility = 'visible';
+        mikuMascot.style.display = 'flex';
+        mikuMascot.style.opacity = '0';
+        mikuMascot.style.transform = 'translateY(100px)';
+
+        mikuLeek.style.display = 'block';
+        mikuLeek.style.visibility = 'visible';
+        mikuLeek.style.opacity = '0';
+        mikuLeek.style.transform = 'translateY(100px)';
+        
+        // 这里必须用 inline styles 重置初始偏移量，因为拖动时直接改了 top/left
+        mikuLeek.style.left = '220px'; 
+        mikuLeek.style.top = '';
+        mikuLeek.style.bottom = '30px';
+
+        mikuMascot.style.left = '20px';
+        mikuMascot.style.top = '';
+        mikuMascot.style.bottom = '20px';
+
+        // 带点缓冲重新跳入屏幕
+        gsap.to([mikuMascot, mikuLeek], {
+            opacity: 1,
+            y: 0,
+            duration: 1.5,
+            ease: 'back.out(1.7)',
+            delay: 0.8
+        });
+        
+        startBlinking(); // 重新开启眨眼守护线程
+    };
 }
+
+let isSaberInit = false;
+function initSaberLogic() {
+    if (isSaberInit) return;
+    isSaberInit = true;
+
+    const saberMascot = document.getElementById('saberMascot');
+    const saberImg = document.getElementById('saberImg');
+    const saberSword = document.getElementById('saberSword');
+    
+    let isEvolvingSaber = false;
+    let sStartX, sStartY, sInitialLeft, sInitialTop;
+    let isDraggingSword = false;
+
+    let sMascotStartX, sMascotStartY, sMascotInitialLeft, sMascotInitialTop;
+    let isDraggingSaber = false;
+
+    // Saber 入场重置函数
+    window.resetSaberState = function() {
+        if (!saberSword || !saberMascot) return;
+        isEvolvingSaber = false;
+        saberImg.src = 'assets/image/saber.png';
+        
+        saberSword.style.display = 'block';
+        saberSword.style.visibility = 'visible';
+        saberSword.style.opacity = '0';
+        saberSword.style.transform = 'translateY(100px)';
+        saberSword.style.left = '220px';
+        saberSword.style.top = '';
+        saberSword.style.bottom = '30px';
+
+        saberMascot.style.display = 'flex';
+        saberMascot.style.visibility = 'visible';
+        saberMascot.style.opacity = '0';
+        saberMascot.style.transform = 'translateY(100px)';
+        saberMascot.style.left = '20px';
+        saberMascot.style.top = '';
+        saberMascot.style.bottom = '20px';
+
+        gsap.to([saberMascot, saberSword], {
+            opacity: 1,
+            y: 0,
+            duration: 1.5,
+            ease: 'back.out(1.7)',
+            delay: 0.8
+        });
+    };
+
+    // --- Saber Mover 交互 ---
+    saberMascot.addEventListener('pointerdown', (e) => {
+        if (isEvolvingSaber) return;
+        isDraggingSaber = true;
+        saberImg.src = 'assets/image/saber_lifted.png'; // "saber被提起来"
+        saberImg.style.animation = 'none';
+
+        sMascotStartX = e.clientX;
+        sMascotStartY = e.clientY;
+        const rect = saberMascot.getBoundingClientRect();
+        sMascotInitialLeft = rect.left;
+        sMascotInitialTop = rect.top;
+
+        saberMascot.setPointerCapture(e.pointerId);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDraggingSaber) return;
+        const dx = e.clientX - sMascotStartX;
+        const dy = e.clientY - sMascotStartY;
+        saberMascot.style.left = `${sMascotInitialLeft + dx}px`;
+        saberMascot.style.top = `${sMascotInitialTop + dy}px`;
+        saberMascot.style.bottom = 'auto'; // 解除底部约束
+    });
+
+    window.addEventListener('pointerup', () => {
+        if (!isDraggingSaber) return;
+        isDraggingSaber = false;
+        if (!isEvolvingSaber) {
+            saberImg.src = 'assets/image/saber.png';
+        }
+        saberImg.style.animation = 'miku-float 4s ease-in-out infinite';
+    });
+
+    // --- Excalibur 物品交互 ---
+    saberSword.addEventListener('pointerdown', (e) => {
+        if (isEvolvingSaber) return;
+        isDraggingSword = true;
+        saberSword.style.animation = 'none';
+        sStartX = e.clientX;
+        sStartY = e.clientY;
+        const rect = saberSword.getBoundingClientRect();
+        sInitialLeft = rect.left;
+        sInitialTop = rect.top;
+        saberSword.setPointerCapture(e.pointerId);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDraggingSword) return;
+        const dx = e.clientX - sStartX;
+        const dy = e.clientY - sStartY;
+        saberSword.style.left = `${sInitialLeft + dx}px`;
+        saberSword.style.top = `${sInitialTop + dy}px`;
+        saberSword.style.bottom = 'auto';
+
+        // 碰撞检测
+        if (checkCollisionSaber(saberSword, saberMascot)) {
+            triggerSaberEvolution();
+        }
+    });
+
+    window.addEventListener('pointerup', () => {
+        if (!isDraggingSword) return;
+        isDraggingSword = false;
+        saberSword.style.animation = 'leek-float 3s ease-in-out infinite';
+    });
+    
+    function checkCollisionSaber(el1, el2) {
+        const r1 = el1.getBoundingClientRect();
+        const r2 = el2.getBoundingClientRect();
+        return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+    }
+
+    // 触发拔起圣剑回归主宇宙
+    function triggerSaberEvolution() {
+        if (saberSword.style.display === 'none' || isEvolvingSaber) return;
+        isEvolvingSaber = true;
+
+        saberSword.style.display = 'none';
+        saberImg.src = 'assets/image/saber_excalibur.png'; // Saber + 大剑形态
+        
+        // 表现后撤退
+        gsap.to(saberMascot, {
+            opacity: 0,
+            y: 40,
+            duration: 1.5,
+            ease: 'power2.inOut',
+            onComplete: () => {
+                saberMascot.style.visibility = 'hidden';
+                saberMascot.style.display = 'none';
+            }
+        });
+
+        // 斩断时空，返回 Miku 主世界
+        if (window.switchBackground) {
+            window.switchBackground();
+        }
+    }
+}
+
+
+
 
 // 启动打字机特效 - 显示当前时间（右下角）
 function startTyped() {
@@ -306,9 +581,16 @@ function startTyped() {
 }
 
 // 启动打字机特效 - 左上角（循环文字）
+let topleftTyped = null;
 function startTypedLeft() {
-    var typed = new Typed('.typing-topleft', {
-        strings: ["MIKU", "HATSUNE"],
+    if (topleftTyped) topleftTyped.destroy();
+    
+    // 根据背景切换文字
+    const isBackground2 = videoSource.src.includes('background2.mp4');
+    const strings = isBackground2 ? ["SABER", "ARTURIA"] : ["MIKU", "HATSUNE"];
+
+    topleftTyped = new Typed('.typing-topleft', {
+        strings: strings,
         loop: true,
         typeSpeed: 65,
         backSpeed: 65,
@@ -373,60 +655,85 @@ function initRaindrop() {
 // 切换雨滴效果
 function toggleRaindrop() {
     const canvas = document.getElementById('raindropCanvas');
+    const productsPanel = document.getElementById('productsPanel');
     isRaindropActive = !isRaindropActive;
     
+    // 判断是否在第二界面 (深色主题)
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    
     if (isRaindropActive) {
-        // 截取当前完整画面（包括视频、打字机等所有元素）
-        captureFullScreen().then(backgroundImage => {
-            // 更新雨滴背景
-            if (raindropFx) {
-                raindropFx.stop();
-            }
+        if (isDarkTheme) {
+            // 第二界面：不需要抓取屏幕或WebGL，直接加上原生 CSS 毛玻璃
+            productsPanel.style.backdropFilter = 'blur(15px)';
+            productsPanel.style.webkitBackdropFilter = 'blur(15px)';
+            productsPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
             
-            raindropFx = new RaindropFX({
-                canvas: canvas,
-                background: backgroundImage,
-                gravity: 600,            // 降低重力：雨滴下落变慢，显得更平静
-                dropletsPerSeconds: 50,  // 降低密度：每秒雨滴变少，不干扰产品视觉
-                dropletSize: [8, 20],    // 雨滴大小保持不变
-                trailDropDensity: 0.1,   // 稍微降低一点拖尾效果
-                mist: true,
-                mistBlurStep: 5,        // 雾效模糊：数字越大越模糊 (1-10)
-                mistTime: 99999,        // 防止内部默认 10s 的定时擦除重置效果
-                backgroundBlurSteps: 3, // 背景模糊：数字越大越模糊 (1-5)
-            });
+            showProductsPanelAnim(productsPanel);
+        } else {
+            // 重置内联样式
+            productsPanel.style.backdropFilter = 'none';
+            productsPanel.style.webkitBackdropFilter = 'none';
+            productsPanel.style.backgroundColor = 'transparent';
             
-            raindropFx.start();
-            canvas.classList.add('active');
-            // 显示产品面板
-            const productsPanel = document.getElementById('productsPanel');
-            productsPanel.classList.add('active');
-            
-            // 使用 GSAP 平滑依次切入卡片
-            gsap.fromTo('.product-card', 
-                { y: 30, opacity: 0 }, 
-                { 
-                    y: 0, 
-                    opacity: 1, 
-                    duration: 0.6, 
-                    stagger: 0.1, 
-                    ease: 'power3.out', 
-                    delay: 0.2,
-                    // 关键：入场动画结束后清除 transform 属性，把 transform 控制权还给 CSS :hover
-                    clearProps: 'transform' 
+            // 截取当前完整画面（包括视频、打字机等所有元素）
+            captureFullScreen().then(backgroundImage => {
+                // 更新雨滴背景
+                if (raindropFx) {
+                    raindropFx.stop();
                 }
-            );
-        });
+                
+                raindropFx = new RaindropFX({
+                    canvas: canvas,
+                    background: backgroundImage,
+                    gravity: 600,            
+                    dropletsPerSeconds: 50,  
+                    dropletSize: [8, 20],    
+                    trailDropDensity: 0.1,   
+                    mist: true,
+                    mistBlurStep: 5,        
+                    mistTime: 99999,        
+                    backgroundBlurSteps: 3, 
+                });
+                
+                raindropFx.start();
+                canvas.classList.add('active');
+                
+                showProductsPanelAnim(productsPanel);
+            });
+        }
     } else {
         canvas.classList.remove('active');
+        productsPanel.style.backdropFilter = 'none';
+        productsPanel.style.webkitBackdropFilter = 'none';
+        productsPanel.style.backgroundColor = 'transparent';
+        
         // 隐藏产品面板
-        const productsPanel = document.getElementById('productsPanel');
         productsPanel.classList.remove('active');
         // 清除尚未完成的入场动画，并重置所有的变换内联样式
         gsap.killTweensOf('.product-card');
         gsap.set('.product-card', { clearProps: 'all' });
     }
 }
+
+// 提取出的产品面板入场动画函数
+function showProductsPanelAnim(panel) {
+    panel.classList.add('active');
+    
+    // 使用 GSAP 平滑依次切入卡片
+    gsap.fromTo('.product-card', 
+        { y: 30, opacity: 0 }, 
+        { 
+            y: 0, 
+            opacity: 1, 
+            duration: 0.6, 
+            stagger: 0.1, 
+            ease: 'power3.out', 
+            delay: 0.2,
+            clearProps: 'transform' 
+        }
+    );
+}
+
 
 // 截取完整屏幕（包括所有元素）
 function captureFullScreen() {
@@ -624,6 +931,79 @@ document.addEventListener('DOMContentLoaded', () => {
             productsBtn.classList.remove('switching');
         }, 400);
     });
+
+    // 背景视频切换逻辑
+    const bgVideo = document.getElementById('bgVideo');
+    const videoSource = document.getElementById('videoSource');
+    let currentVideo = 'background.mp4';
+
+    window.switchBackground = function() {
+        if (!bgVideo) return;
+        
+        // 0. UI 退出画面动画 (向上滑出版)
+        const uiElements = '.navbar-right, .navbar-left, .typing-topleft-container, .typing-container';
+        gsap.to(uiElements, {
+            opacity: 0,
+            y: (i, el) => {
+                // navbar-left 也向上滑出
+                if (el.classList.contains('navbar-right') || el.classList.contains('typing-topleft-container') || el.classList.contains('navbar-left')) return -40;
+                return 40; // 底部打字机向下滑出
+            },
+            // 取消原本 navbar-left 的左滑脱出
+            duration: 0.8,
+            ease: 'power2.in',
+            stagger: 0.1
+        });
+
+        // 1. 背景淡出
+        bgVideo.classList.add('video-fade-out');
+        
+        setTimeout(() => {
+            // 切换路径
+            currentVideo = (currentVideo === 'background.mp4') ? 'background2.mp4' : 'background.mp4';
+            videoSource.src = `assets/video/${currentVideo}`;
+            
+            // 切换主题样式 (黑白)
+            if (currentVideo === 'background2.mp4') {
+                document.body.classList.add('dark-theme');
+                // 加载并弹射 Saber 登场
+                initSaberLogic();
+                if (window.resetSaberState) window.resetSaberState();
+            } else {
+                document.body.classList.remove('dark-theme');
+                // 重召 Miku 万象归流
+                if (window.resetMikuState) window.resetMikuState();
+            }
+
+            // 重新刷新打字机文字
+            startTypedLeft();
+
+            // 重新加载并播放
+            bgVideo.load();
+            bgVideo.play();
+            
+            // 数据加载后再淡入
+            bgVideo.oncanplay = () => {
+                bgVideo.classList.remove('video-fade-out');
+                
+                // 2. UI 重新流畅滑入
+                // 确保 Products 按钮入场前重置到左侧，保持左进动作
+                gsap.set('.navbar-left', { x: -40, y: 0 });
+                
+                gsap.to('.navbar-right', { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.5 });
+                gsap.to('.navbar-left', { opacity: 1, x: 0, duration: 1, ease: 'power3.out', delay: 0.6 });
+                gsap.to('.typing-topleft-container, .typing-container', { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 1, 
+                    ease: 'power3.out', 
+                    delay: 0.7 
+                });
+            };
+        }, 1000); 
+    };
+
+
 
     // 导航链接点击效果
     const navLinks = document.querySelectorAll('.nav-link');

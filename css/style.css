@@ -30,6 +30,11 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: opacity 1s ease-in-out;
+}
+
+.video-fade-out {
+    opacity: 0;
 }
 
 /* 打字机特效 - 右下角（时间） */
@@ -121,6 +126,12 @@ body {
 .nav-products-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(223, 223, 242, 0.5);
+}
+
+.disabled-btn {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+    filter: grayscale(1) !important;
 }
 
 .nav-products-btn .btn-text {
@@ -229,6 +240,48 @@ body {
         0 0 6px rgba(0, 0, 0, 0.08);
 }
 
+/* 背景切换按钮 - 黑色版 */
+.dark-theme .nav-switch-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #1a1a1a;
+}
+.dark-theme .nav-switch-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 背景切换按钮 */
+.nav-switch-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-left: 10px;
+    outline: none;
+}
+
+.nav-switch-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-2px) scale(1.05);
+}
+
+.nav-switch-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
 .nav-link:hover {
     color: #dfdff2;
 }
@@ -282,6 +335,8 @@ body {
     animation: none !important;
     transform-origin: bottom center;
 }
+
+/* 音频指示器和第一界面完全一样，因此不添加额外的 dark-theme 修改 */
 
 /* 每个竖条不同的动画 */
 .indicator-line:nth-child(1).active {
@@ -911,4 +966,97 @@ body {
 @keyframes miku-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
-}
+}
+
+/* Miku 物品 (Leek) */
+.miku-item-container {
+    position: fixed;
+    left: 220px; /* 增加距离，防止太挤 */
+    bottom: 30px;
+    width: 60px;
+    height: 60px;
+    z-index: 1001;
+    cursor: grab;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none; /* 防止蓝框选中 */
+    -webkit-user-select: none;
+}
+
+.miku-item-img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.15));
+    animation: leek-float 3s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+@keyframes leek-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(5deg); }
+}
+
+/* Saber 物品 (Excalibur) */
+.saber-item-container {
+    position: fixed;
+    left: 220px; 
+    bottom: 30px; 
+    width: 85px;
+    height: 85px;
+    z-index: 1001;
+    cursor: grab;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none; 
+    -webkit-user-select: none;
+}
+
+.saber-item-img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.15));
+    animation: leek-float 3s ease-in-out infinite; /* 复用浮动即可 */
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Saber 看板娘 */
+.saber-mascot-container {
+    position: fixed;
+    left: 10px; 
+    bottom: 10px; 
+    width: 140px;
+    height: 140px;
+    z-index: 1000;
+
+    pointer-events: auto;
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(100px);
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.saber-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    animation: miku-float 4s ease-in-out infinite; 
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.15));
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    pointer-events: none;
+}
+
