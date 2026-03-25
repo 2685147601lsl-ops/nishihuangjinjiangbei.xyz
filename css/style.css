@@ -857,3 +857,58 @@ body {
         width: 280px;
     }
 }
+
+/* ========================================
+   Miku 看板娘 (Mascot)
+   ======================================== */
+.miku-mascot-container {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    width: 120px;
+    height: 120px;
+    z-index: 1000;
+    pointer-events: auto;
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(100px);
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.miku-mascot-container:active {
+    cursor: grabbing;
+}
+
+.miku-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    animation: miku-float 4s ease-in-out infinite;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.15));
+    /* 禁止浏览器默认的图片拖拽功能 */
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    pointer-events: none; /* 让点击事件穿透到父容器处理 */
+}
+
+/* 翻转（向右走时） */
+.miku-flip {
+    transform: transition scaleX(-1);
+}
+
+.miku-img.miku-flip {
+    transform: scaleX(-1);
+}
+
+@keyframes miku-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}

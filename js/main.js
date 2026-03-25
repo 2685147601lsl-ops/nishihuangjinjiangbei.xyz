@@ -28,6 +28,8 @@ function startIntroAnimation() {
     // 导航栏和按钮初始不可见且有位移
     gsap.set('.navbar-right', { opacity: 0, y: -40 });
     gsap.set('.navbar-left', { opacity: 0, x: -40 });
+    // 看板娘初始不可见
+    gsap.set('.miku-mascot-container', { opacity: 0, y: 50 });
 
     // 1. 设定起始标签
     tl.add('start', 0)
@@ -119,7 +121,143 @@ function startIntroAnimation() {
         duration: 1.2,
         ease: 'power3.out',
         onStart: startTyped
-    }, 'outro+=1.1');
+    }, 'outro+=1.1')
+    // 10. 看板娘最后蹦出来
+    .to('.miku-mascot-container', {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: 'back.out(1.7)',
+        onComplete: initMikuLogic // 动画结束后再初始化逻辑
+    }, 'outro+=1.2');
+}
+
+// 将 Miku 逻辑封装成初始化函数
+function initMikuLogic() {
+    const mikuMascot = document.getElementById('mikuMascot');
+    const mikuImg = document.getElementById('mikuImg');
+    if (!mikuMascot || !mikuImg) return;
+
+    const assets = {
+        idleOpen: 'assets/image/miku_idle_open.png',
+        idleClosed: 'assets/image/miku_idle_closed.png',
+        blinkHalf: 'assets/image/miku_blink_open_half.png',
+        blinkFull: 'assets/image/miku_blink_open_full.png',
+        blinkClosedHalf: 'assets/image/miku_blink_closed_half.png',
+        blinkClosedFull: 'assets/image/miku_blink_closed_full.png',
+        cry1: 'assets/image/miku_cry_1.png',
+        cry2: 'assets/image/miku_cry_2.png',
+        cry3: 'assets/image/miku_cry_3.png',
+        walk1: 'assets/image/miku_walk_1.png',
+        walk2: 'assets/image/miku_walk_2.png'
+    };
+
+    let isDragging = false;
+    let isWalking = false;
+    let mouthState = 'OPEN';
+    let blinkCount = 0;
+    let startX, startY, initialLeft, initialTop;
+    let cryCycleInterval;
+
+    let blinkTimer;
+    const triggerBlink = () => {
+        if (isDragging || isWalking) return;
+        const isClosed = (mouthState === 'CLOSED');
+        const halfBlinkAsset = isClosed ? assets.blinkClosedHalf : assets.blinkHalf;
+        const fullBlinkAsset = isClosed ? assets.blinkClosedFull : assets.blinkFull;
+        const idleAsset = isClosed ? assets.idleClosed : assets.idleOpen;
+
+        setTimeout(() => { mikuImg.src = halfBlinkAsset; }, 0);
+        setTimeout(() => { mikuImg.src = fullBlinkAsset; }, 50);
+        setTimeout(() => { mikuImg.src = halfBlinkAsset; }, 150);
+        setTimeout(() => { 
+            mikuImg.src = idleAsset; 
+            if (mouthState === 'OPEN') {
+                blinkCount++;
+                if (blinkCount >= 2) mouthState = 'CLOSED';
+            }
+        }, 200);
+    };
+
+    const startBlinking = () => {
+        const loop = () => {
+            if (!isDragging && !isWalking) triggerBlink();
+            blinkTimer = setTimeout(loop, 5000); // 固定 5s 间隔
+        };
+        blinkTimer = setTimeout(loop, 5000);
+    };
+    startBlinking();
+
+    const walkToNewPoint = () => {
+        if (isDragging || isWalking || Math.random() > 0.3) return;
+        isWalking = true;
+        const rect = mikuMascot.getBoundingClientRect();
+        const walkDistance = (Math.random() - 0.5) * 150;
+        const targetX = rect.left + walkDistance;
+        if (targetX < 10 || targetX > window.innerWidth - 130) { isWalking = false; return; }
+
+        if (walkDistance > 0) mikuImg.classList.add('miku-flip');
+        else mikuImg.classList.remove('miku-flip');
+
+        let stepCount = 0;
+        const walkInterval = setInterval(() => {
+            if (!isWalking) return clearInterval(walkInterval);
+            mikuImg.src = (stepCount % 2 === 0) ? assets.walk1 : assets.walk2;
+            stepCount++;
+        }, 200);
+
+        gsap.to(mikuMascot, {
+            left: targetX,
+            duration: Math.abs(walkDistance) / 40,
+            ease: 'none',
+            onComplete: () => {
+                isWalking = false;
+                clearInterval(walkInterval);
+                mikuImg.classList.remove('miku-flip');
+                mikuImg.src = (mouthState === 'CLOSED') ? assets.idleClosed : assets.idleOpen;
+            }
+        });
+    };
+    setInterval(walkToNewPoint, 15000);
+
+    mikuMascot.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        isWalking = false;
+        mouthState = 'OPEN';
+        blinkCount = 0;
+        mikuImg.src = assets.cry1;
+        mikuMascot.style.animation = 'none';
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = mikuMascot.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        mikuMascot.setPointerCapture(e.pointerId);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        mikuMascot.style.left = `${initialLeft + dx}px`;
+        mikuMascot.style.top = `${initialTop + dy}px`;
+        mikuMascot.style.bottom = 'auto'; // 覆盖初始 bottom 固定定位
+    });
+
+    window.addEventListener('pointerup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // 恢复初始浮动动画
+        mikuMascot.style.animation = 'miku-float 4s ease-in-out infinite';
+        
+        // 恢复为张嘴待机图
+        mikuImg.src = assets.idleOpen;
+        
+        // 瞬间触发一次眨眼
+        setTimeout(triggerBlink, 300);
+    });
+
 }
 
 // 启动打字机特效 - 显示当前时间（右下角）
