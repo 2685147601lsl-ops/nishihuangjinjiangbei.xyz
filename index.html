@@ -20,28 +20,22 @@
 </head>
 
 <body>
-    <!-- 预加载动画 (Preloader) -->
-    <div class="preloader" id="preloader">
-        <div class="loader-content">
-            <div class="spinner">
-                <div class="dot-wrapper dot-1"><div class="dot"></div></div>
-                <div class="dot-wrapper dot-2"><div class="dot"></div></div>
-                <div class="dot-wrapper dot-3"><div class="dot"></div></div>
-            </div>
-            <div class="loader-text">LOADING...</div>
-        </div>
+    <!-- 初始资源加载动画 (Initial Loader) -->
+    <div class="initial-loader" id="initialLoader">
+        <div class="loading-130"></div>
     </div>
 
-    <!-- GSAP FLIP 开屏动画 -->
-    <div class="intro-overlay" id="introOverlay">
-        <div class="intro-grid"></div>
-        <div class="intro-content">
-            <div class="intro-circle circle-1"></div>
-            <div class="intro-circle circle-2"></div>
-            <div class="intro-circle circle-3"></div>
-            <div class="intro-text">WELCOME</div>
-        </div>
+    <!-- 睁眼开屏动效 (Eye Opening Loader) -->
+    <div class="eye-opening-loader" id="eyeLoader">
+        <div class="eyelid-top" id="eyelidTop"></div>
+        <div class="eyelid-bottom" id="eyelidBottom"></div>
     </div>
+
+    <!-- 视角四周/两侧渐进暗角 (Vignette Tunnel Vision) -->
+    <div class="vignette-overlay active-state" id="vignetteOverlay"></div>
+
+    <!-- 主内容包裹器 (以进行同步视线对焦模糊) -->
+    <div class="main-content-wrapper blur-state" id="contentWrapper">
 
     <!-- 导航栏 - 左侧 Products 按钮 -->
     <div class="navbar-left">
@@ -201,6 +195,8 @@
     <!-- Saber 看板娘 -->
     <div class="saber-mascot-container" id="saberMascot" style="display: none;">
         <img src="assets/image/saber.png" alt="Saber Mascot" class="saber-img" id="saberImg">
+    </div>
+
     </div>
 
     <!-- Raindrop FX -->

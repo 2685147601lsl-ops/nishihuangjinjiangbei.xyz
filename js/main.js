@@ -1,20 +1,18 @@
 // GSAP 开屏动画与静默预加载
-window.addEventListener('load', () => {
-    // 隐藏预加载器
-    const preloader = document.getElementById('preloader');
-    
-    gsap.to(preloader, {
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power2.inOut',
-        onComplete: () => {
-            if (preloader) preloader.style.display = 'none';
-            // 预加载器隐藏后，开始开屏动画
-            startIntroAnimation();
-            // 在后台静默预加载所有交互帧，根除图片更换时的肉眼延迟
-            preloadCriticalAssets();
-        }
-    });
+window.addEventListener('load', async () => {
+    // 隐藏初始资源加载动画
+    const initialLoader = document.getElementById('initialLoader');
+    if (initialLoader) {
+        initialLoader.classList.add('hidden-state');
+        // 等待淡出动画完成 (0.5s)
+        await new Promise(resolve => setTimeout(resolve, 500));
+        initialLoader.style.display = 'none';
+    }
+
+    // 开始初醒睁眼开屏动画
+    playIntroAnimation();
+    // 在后台静默预加载所有交互帧，根除图片更换时的肉眼延迟
+    preloadCriticalAssets();
 
     function preloadCriticalAssets() {
         const assetsToPreload = [
@@ -39,121 +37,90 @@ window.addEventListener('load', () => {
     }
 });
 
-function startIntroAnimation() {
-    const tl = gsap.timeline();
+// 延迟 Promise 工具函数
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function playIntroAnimation() {
+    const eyeLoader = document.getElementById('eyeLoader');
+    const eyelidTop = document.getElementById('eyelidTop');
+    const eyelidBottom = document.getElementById('eyelidBottom');
+    const contentWrapper = document.getElementById('contentWrapper');
+    const vignetteOverlay = document.getElementById('vignetteOverlay');
+
+    if (!eyeLoader || !eyelidTop || !eyelidBottom || !contentWrapper || !vignetteOverlay) return;
 
     // 初始设置
-    gsap.set('.circle-1, .circle-2, .circle-3', { scale: 0.1, opacity: 0 });
-    gsap.set('.intro-text', { scale: 0.8, y: 0, opacity: 0 }); // 移除了抖动元凶 letterSpacing
-    gsap.set('.intro-overlay', { scale: 1 });
-    // 打字机容器初始不可见且有位移
     gsap.set('.typing-topleft-container', { opacity: 0, y: -40 });
     gsap.set('.typing-container', { opacity: 0, y: 40 });
-    // 导航栏和按钮初始不可见且有位移
     gsap.set('.navbar-right', { opacity: 0, y: -40 });
     gsap.set('.navbar-left', { opacity: 0, x: -40 });
-    // 看板娘初始不可见
-    gsap.set('.miku-mascot-container', { opacity: 0, y: 50 });
+    gsap.set('.miku-mascot-container, .miku-item-container', { opacity: 0, y: 50 });
 
-    // 1. 设定起始标签
-    tl.add('start', 0)
+    // 1. 启动，等待 800ms 酝酿初醒感
+    await delay(800);
+
+    // 2. 第一次睁眼 (微张 1300ms 动作，我们在 450ms 时打断并合上，形成完美的 30% 睡眼微张感)
+    eyelidTop.classList.add('open-state');
+    eyelidBottom.classList.add('open-state');
     
-    // 网格浮现
-    .to('.intro-grid', {
-        opacity: 0.7,
-        duration: 1,
-        ease: 'sine.inOut'
-    }, 'start')
+    // 3. 450ms 后回弹闭合
+    await delay(450);
+    eyelidTop.classList.remove('open-state');
+    eyelidBottom.classList.remove('open-state');
 
-    // 2. 圆圈快速呼吸式展开（间隔缩短）
-    .to('.circle-1', { opacity: 0.5, scale: 1, duration: 0.6, ease: 'expo.out' }, 'start+=0.2')
-    .to('.circle-2', { opacity: 0.7, scale: 1, duration: 0.6, ease: 'expo.out' }, 'start+=0.3')
-    .to('.circle-3', { opacity: 1, scale: 1, duration: 0.6, ease: 'expo.out' }, 'start+=0.4')
+    // 4. 合眼沉睡等待 800ms
+    await delay(800);
 
-    // 3. 圆圈缓慢旋转（3秒动画，作为背景运动，不影响后续时间轴关键点）
-    .to('.circle-1', { rotation: 90, duration: 3, ease: 'none' }, 'start+=0.2')
-    .to('.circle-2', { rotation: -60, duration: 3, ease: 'none' }, 'start+=0.2')
-    .to('.circle-3', { rotation: 45, duration: 3, ease: 'none' }, 'start+=0.2')
+    // 5. 第二次彻底睁开
+    eyelidTop.classList.add('open-state');
+    eyelidBottom.classList.add('open-state');
+    // 第二次彻底睁开时，中央过曝的强光和两侧暗化开始在眨眼睁开期间慢慢恢复正常
+    vignetteOverlay.classList.remove('active-state');
 
-    // 4. WELCOME 文字平滑浮现（纯缩放，不用 letterSpacing 防抖动）
-    .to('.intro-text', {
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        ease: 'power2.out'
-    }, 'start+=0.5')
+    // 6. 等待 600ms (在动作完全展开的中途，开始视线对焦与UI淡入)
+    await delay(600);
+    contentWrapper.classList.remove('blur-state');
 
-    // 5. 设定退场标签 
-    // 文字在1.3秒完全浮现。停留0.3秒后，即 1.6秒 时开始退场！
-    .add('outro', 'start+=1.6')
-
-    // 6. 圆圈从外到内向外扩散退场（3 -> 2 -> 1，波纹感，时间间隔极短）
-    .to('.circle-3', { scale: 2.5, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'outro')
-    .to('.circle-2', { scale: 3, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'outro+=0.05')
-    .to('.circle-1', { scale: 3.5, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'outro+=0.1')
-
-    // 7. 文字与网格同步消散（纯缩放即可产生拉伸感，防止抖动）
-    .to('.intro-text', {
-        opacity: 0,
-        scale: 1.2,
-        duration: 0.6,
-        ease: 'power3.in'
-    }, 'outro+=0.1')
-    .to('.intro-grid', {
-        opacity: 0,
-        scale: 1.1,
-        duration: 0.8,
-        ease: 'power2.in'
-    }, 'outro+=0.1')
-
-    // 8. 遮罩层：中间扩散变淡消失（Dissolve 效果）
-    .to('.intro-overlay', {
-        scale: 1.2,
-        opacity: 0,
-        filter: 'blur(20px)',
-        duration: 1.0,
-        ease: 'power4.inOut',
-        onComplete: () => {
-            const overlay = document.getElementById('introOverlay');
-            if (overlay) overlay.style.display = 'none';
-        }
-    }, 'outro+=0.2')
+    // 7. 使用 GSAP 优雅滑入 UI 元素（导航栏、侧边按钮、打字机和看板娘）
+    const tl = gsap.timeline();
     
-    // 9. UI 元素优雅滑入（导航栏、侧边按钮、打字机）
-    .to('.navbar-right', {
+    tl.to('.navbar-right', {
         opacity: 1,
         y: 0,
         duration: 1.2,
         ease: 'power3.out'
-    }, 'outro+=0.9')
+    }, '+=0.3')
     .to('.navbar-left', {
         opacity: 1,
         x: 0,
         duration: 1.2,
         ease: 'power3.out'
-    }, 'outro+=1.0')
+    }, '-=1.0')
     .to('.typing-topleft-container', {
         opacity: 1,
         y: 0,
         duration: 1.2,
         ease: 'power3.out',
         onStart: startTypedLeft
-    }, 'outro+=1.1')
+    }, '-=1.1')
     .to('.typing-container', {
         opacity: 1,
         y: 0,
         duration: 1.2,
         ease: 'power3.out',
         onStart: startTyped
-    }, 'outro+=1.1')
-    // 10. 物品与看板娘最后蹦出来
-    tl.to('.miku-mascot-container, .miku-item-container', {
+    }, '-=1.1')
+    .to('.miku-mascot-container, .miku-item-container', {
         opacity: 1,
         y: 0,
         duration: 1.5,
         ease: 'back.out(1.7)',
-        onComplete: initMikuLogic // 动画结束后再初始化逻辑
-    }, 'outro+=1.2');
+        onComplete: () => {
+            initMikuLogic();
+            // 动画结束后，彻底隐藏 loader 节点以防影响页面点击
+            eyeLoader.style.display = 'none';
+        }
+    }, '-=1.2');
 }
 
 
@@ -667,6 +634,15 @@ function toggleRaindrop() {
             
             // 截取当前完整画面（包括视频、打字机等所有元素）
             captureFullScreen().then(backgroundImage => {
+                if (!backgroundImage) {
+                    // Fallback for file:// protocol or CORS taint
+                    productsPanel.style.backdropFilter = 'blur(15px)';
+                    productsPanel.style.webkitBackdropFilter = 'blur(15px)';
+                    productsPanel.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                    showProductsPanelAnim(productsPanel);
+                    return;
+                }
+
                 // 更新雨滴背景
                 if (raindropFx) {
                     raindropFx.stop();
@@ -775,7 +751,13 @@ function captureFullScreen() {
             raindropCanvas.classList.add('active');
         }
         
-        resolve(captureCanvas.toDataURL('image/jpeg', 0.9));
+        try {
+            const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.9);
+            resolve(dataUrl);
+        } catch (e) {
+            console.warn('Canvas toDataURL failed (likely CORS or file:// protocol taint). Falling back to CSS blur.');
+            resolve(null);
+        }
     });
 }
 
